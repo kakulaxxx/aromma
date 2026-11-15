@@ -409,6 +409,14 @@ const chain = V.defineChain({
 });
 // The public RPC is rate limited: aggregate reads through Multicall3 and back off on 429.
 const pub = V.createPublicClient({ chain, batch: { multicall: { wait: 30 } }, transport: V.http(RPC, { retryCount: 5, retryDelay: 700, timeout: 25_000 }) });
+// Public RPC replicas can announce a head before they serve its state, so read a few
+// blocks behind and retry briefly (fresh launches can take a moment to appear everywhere).
+const safeBlock = async () => { const h = await pub.getBlockNumber(); return h > 3n ? h - 3n : h; };
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+async function withRetry(fn, tries = 5, onRetry) {
+  let last; for (let i = 0; i < tries; i++) { try { return await fn(i); } catch (e) { last = e; if (i < tries - 1) { onRetry?.(i + 1); await sleep(1500 + i * 1500); } } }
+  throw last;
+}
 const wethAbi = V.parseAbi(['function deposit() payable', 'function withdraw(uint256)']);
 const poolAbi = S.ammoraLaunchPoolV4Abi, erc = V.erc20Abi;
 const swapEvent = poolAbi.find((x) => x.type === 'event' && x.name === 'Swap');
@@ -651,7 +659,7 @@ $('c-go').onclick = async () => {
     if (website && !safeUrl(website)) throw new Error('Website must start with https://');
     btn.disabled = true;
     const configId = BigInt($('c-cfg').value);
-    const block = await pub.getBlockNumber();
+    const block = await safeBlock();
     log(el, 'Verifying Ammora V4 core contracts…');
     await S.verifyAmmoraV4CoreAtBlock(pub, CORE, block);
     const entry = await S.getAmmoraV4ConfigAtBlock(pub, L.configRegistry, configId, block);
@@ -666,7 +674,7 @@ $('c-go').onclick = async () => {
     const nl = { token: V.getAddress(created.token), curve: V.getAddress(created.curve), creator: account, configId, metadataURI: uri, meta: parseMeta(uri), block: receipt.blockNumber, time: Date.now() / 1000, tx: receipt.transactionHash };
     LAUNCHES.unshift(nl); hydrate([nl]);
     toast('Token launched! Opening its page…');
-    setTimeout(() => location.hash = '#/token/' + nl.curve, 1200);
+    setTimeout(() => location.hash = '#/token/' + nl.curve, 4000);
   } catch (e) { logErr(el, e); } finally { btn.disabled = false; }
 };
 
@@ -794,7 +802,7 @@ async function openToken(curve) {
   }
   $('tr-log').innerHTML = '';
   const sdk = new S.AmmoraV4LaunchCurveClient(pub, curve, CORE);
-  const st = await sdk.getStateAtBlock(await pub.getBlockNumber());
+  const st = await withRetry(async () => sdk.getStateAtBlock(await safeBlock()), 6, (n) => { if (!cur) $('t-desc').textContent = `Syncing with the GIWA RPC… (retry ${n})`; });
   const token = V.getAddress(st.baseToken);
   let launch = LAUNCHES.find((l) => l.curve === curve);
   if (!launch) launch = { token, curve, creator: st.creator, configId: st.configId, meta: {}, metadataURI: '' };
@@ -937,7 +945,7 @@ async function planPool(amountIn) {
   }
   throw new Error(/revert/i.test(last?.message || '') ? 'Pool quote failed. Check that your wallet holds enough of the input token (WETH for buys).' : (last?.shortMessage || last?.message));
 }
-const plan = async (amt) => isPool() ? planPool(amt) : planCurve(amt, await pub.getBlockNumber());
+const plan = async (amt) => isPool() ? planPool(amt) : withRetry(async () => planCurve(amt, await safeBlock()), 3);
 
 async function requestQuote() {
   if (!cur || (cur.state.status !== 1 && cur.state.status !== 3)) return;
@@ -1086,7 +1094,7 @@ const KO = {
   'A fee vault is shared across launches, so the same balance can appear on several of your tokens. Claim once.': '수수료 볼트는 여러 런치가 함께 사용하므로 같은 잔액이 여러 토큰에 표시될 수 있습니다. 한 번만 청구하세요.',
   'Wallet': '지갑', 'Not connected': '연결되지 않음', 'Wrap ETH → WETH': 'ETH → WETH 래핑', 'Wrap': '래핑', 'Unwrap WETH → ETH': 'WETH → ETH 언래핑', 'Unwrap': '언래핑',
   'Need gas? Use the': '가스가 필요하면', 'GIWA faucet': 'GIWA 파우셋', 'or the': '또는', 'GIWA bridge': 'GIWA 브리지',
-  'Network busy': '네트워크 혼잡', 'Top tokens': '상위 토큰', 'Top 3 by WETH raised on the bonding curve': '본딩 커브 WETH 모금액 기준 상위 3개', 'Market cap': '시가총액', 'Price': '가격', 'Launch a token to take this spot': '토큰을 런치해 이 자리를 차지하세요', 'Not an Ammora V4 curve': 'Ammora V4 커브가 아닙니다',
+  'Network busy': '네트워크 혼잡', 'The public GIWA RPC is slow or still syncing this token.': '공개 GIWA RPC가 느리거나 아직 이 토큰을 동기화하는 중입니다.', 'Retry': '다시 시도', 'Top tokens': '상위 토큰', 'Top 3 by WETH raised on the bonding curve': '본딩 커브 WETH 모금액 기준 상위 3개', 'Market cap': '시가총액', 'Price': '가격', 'Launch a token to take this spot': '토큰을 런치해 이 자리를 차지하세요', 'Not an Ammora V4 curve': 'Ammora V4 커브가 아닙니다',
   'Aromma is an independent community launchpad on GIWA Sepolia testnet (chain 91342), not operated by Ammora Labs. Do not use real funds. Contracts, quotes and transaction plans come from': 'Aromma는 GIWA 세폴리아 테스트넷(체인 91342)의 독립 커뮤니티 런치패드이며 Ammora Labs가 운영하지 않습니다. 실제 자금을 사용하지 마세요. 컨트랙트, 견적, 트랜잭션 계획은 다음에서 제공됩니다:',
   '. \n  Launch history, trades and holders are read from the GIWA explorer.': '. 런치 기록, 거래, 보유자 정보는 GIWA 익스플로러에서 읽어옵니다.',
   'Launch history, trades and holders are read from the GIWA explorer.': '런치 기록, 거래, 보유자 정보는 GIWA 익스플로러에서 읽어옵니다.', 'Source code': '소스 코드',
@@ -1106,6 +1114,7 @@ const KO_RX = [
   [/^Config #(\d+) · graduates at (.+)$/, '설정 #$1 · 졸업 기준 $2'],
   [/^\.\s+Launch history, trades and holders are read from the GIWA explorer\.$/, '. 런치 기록, 거래, 보유자 정보는 GIWA 익스플로러에서 읽어옵니다.'],
   [/^On-chain logo: (\d+)×(\d+)px · ([\d.]+) KB · metadata (\d+)\/(\d+) bytes$/, '온체인 로고: $1×$2px · $3 KB · 메타데이터 $4/$5바이트'],
+  [/^Syncing with the GIWA RPC… \(retry (\d+)\)$/, 'GIWA RPC와 동기화 중… (재시도 $1)'],
   [/^(.+) WETH raised$/, '$1 WETH 모금 시'], [/^(.+) WETH · reached$/, '$1 WETH · 도달'],
 ];
 let LANG = 'en';
@@ -1206,7 +1215,7 @@ function route() {
   if (changed) window.scrollTo(0, 0);
   if (v === 'create') booted.then(fillConfigs);
   if (v === 'portfolio') { if (!account) { $('w-kv').innerHTML = '<div>Status</div><div>Not connected</div>'; } else renderPortfolio().catch(() => {}); }
-  if (v === 'token') { const a = h.split('/')[2]; if (/^0x[0-9a-fA-F]{40}$/.test(a)) openToken(a).catch((e) => { const rl = /429|HTTP request failed|timeout/i.test(e.message || ''); $('t-name').textContent = rl ? 'Network busy' : 'Not an Ammora V4 curve'; $('t-desc').innerHTML = rl ? 'The public GIWA RPC is rate limiting requests. <a href="#" onclick="location.reload();return false">Retry</a>' : esc(e.shortMessage || e.message); }); }
+  if (v === 'token') { const a = h.split('/')[2]; if (/^0x[0-9a-fA-F]{40}$/.test(a)) openToken(a).catch((e) => { const rl = /429|HTTP request failed|timeout|returned no data/i.test(e.message || ''); $('t-name').textContent = rl ? 'Network busy' : 'Not an Ammora V4 curve'; $('t-desc').innerHTML = rl ? 'The public GIWA RPC is slow or still syncing this token. <a href="#" onclick="location.reload();return false">Retry</a>' : esc(e.shortMessage || e.message); }); }
 }
 window.addEventListener('hashchange', route);
 const tick = async () => { try { $('blk').textContent = '#' + (await pub.getBlockNumber()).toLocaleString('en-US'); } catch {} };
