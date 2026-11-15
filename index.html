@@ -18,10 +18,14 @@
 html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 Inter,system-ui,sans-serif}
 a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
 button{font:inherit;cursor:pointer}
-.wrap{max-width:1120px;margin:0 auto;padding:0 16px}
-header{position:sticky;top:0;z-index:10;background:rgba(11,13,18,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.wrap{max-width:1160px;margin:0 auto;padding:0 16px}
+.topbar{background:linear-gradient(90deg,rgba(55,226,180,.12),rgba(124,108,255,.12));border-bottom:1px solid var(--line);font-size:13px;color:var(--muted)}
+.topbar .wrap{display:flex;gap:16px;align-items:center;height:34px}
+.topbar a{color:var(--text)}
+header{position:sticky;top:0;z-index:10;background:rgba(11,13,18,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .bar{display:flex;align-items:center;gap:16px;height:64px}
 .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;color:var(--text)}
+.logo:hover{text-decoration:none}
 .logo i{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-style:normal;color:#fff}
 nav{display:flex;gap:4px;margin-left:8px}
 nav button{background:none;border:0;color:var(--muted);padding:8px 12px;border-radius:9px;font-weight:500}
@@ -33,16 +37,18 @@ nav button.on,nav button:hover{color:var(--text);background:var(--panel2)}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 .btn.ghost{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
 .btn.sm{padding:6px 12px;font-size:13px}
-.hero{padding:40px 0 24px}
+.icon-btn{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:9px;padding:6px 10px;font-size:13px}
+.hero{padding:36px 0 20px;display:flex;gap:24px;align-items:flex-end;flex-wrap:wrap}
+.hero>div:first-child{flex:1;min-width:280px}
 .hero h1{font-size:34px;line-height:1.15;margin:0 0 10px;letter-spacing:-.02em}
 .hero h1 span{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero p{color:var(--muted);max-width:640px;margin:0}
-.stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
-.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 16px;min-width:140px}
-.stat div{color:var(--muted);font-size:12px} .stat b{font-size:20px}
+.hero p{color:var(--muted);max-width:620px;margin:0}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;min-width:120px}
+.stat div{color:var(--muted);font-size:12px} .stat b{font-size:19px}
 .toolbar{display:flex;gap:8px;align-items:center;margin:16px 0;flex-wrap:wrap}
 .toolbar input{flex:1;min-width:200px}
-.seg{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px;flex-wrap:wrap}
 .seg button{background:none;border:0;color:var(--muted);padding:6px 12px;border-radius:8px;font-size:13px}
 .seg button.on{background:var(--panel2);color:var(--text)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;padding-bottom:40px}
@@ -53,7 +59,7 @@ nav button.on,nav button:hover{color:var(--text);background:var(--panel2)}
 .av img{width:100%;height:100%;object-fit:cover}
 .tk .n{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tk .s{color:var(--muted);font:12px var(--mono)}
-.badge{font-size:11px;font-weight:600;padding:3px 8px;border-radius:99px;border:1px solid}
+.badge{font-size:11px;font-weight:600;padding:3px 8px;border-radius:99px;border:1px solid;white-space:nowrap}
 .b1{color:var(--ok);border-color:rgba(55,226,180,.35);background:rgba(55,226,180,.08)}
 .b2{color:var(--warn);border-color:rgba(255,198,92,.35);background:rgba(255,198,92,.08)}
 .b3{color:var(--accent2);border-color:rgba(124,108,255,.4);background:rgba(124,108,255,.1)}
@@ -63,7 +69,8 @@ nav button.on,nav button:hover{color:var(--text);background:var(--panel2)}
 .row{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
 .mono{font-family:var(--mono);font-size:12px}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
-.two{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;padding:24px 0 40px}
+.two{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;padding:20px 0 40px;align-items:start}
+.stack{display:flex;flex-direction:column;gap:16px;min-width:0}
 label{display:block;font-size:13px;color:var(--muted);margin:14px 0 6px}
 input,textarea,select{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;outline:none}
 input:focus,textarea:focus,select:focus{border-color:var(--accent)}
@@ -75,14 +82,16 @@ textarea{min-height:80px;resize:vertical}
 .tabs2 button{background:none;border:0;color:var(--muted);padding:9px;border-radius:8px;font-weight:600}
 .tabs2 button.buy.on{background:rgba(55,226,180,.15);color:var(--ok)}
 .tabs2 button.sell.on{background:rgba(255,107,107,.15);color:var(--danger)}
+.quick{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.quick button{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:4px 10px;font-size:12px}
 .quote{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;margin:12px 0;font-size:13px}
 .quote .row{margin:3px 0}
 .full{width:100%;margin-top:6px}
 .note{font-size:12px;color:var(--muted);margin-top:10px}
 .log{margin-top:12px;font:12px var(--mono);color:var(--muted);white-space:pre-wrap;word-break:break-all}
-.log .ok{color:var(--ok)} .log .er{color:var(--danger)}
-.empty{color:var(--muted);text-align:center;padding:60px 0}
-.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}
+.ok{color:var(--ok)} .er{color:var(--danger)} .wn{color:var(--warn)}
+.empty{color:var(--muted);text-align:center;padding:50px 0}
+.steps{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .step{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:13px}
 .step b{display:block;color:var(--text);margin-bottom:2px} .step span{color:var(--muted)}
 .step em{font-style:normal;color:var(--accent);font:12px var(--mono)}
@@ -92,21 +101,43 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:12px;paddin
 .hidden{display:none!important}
 .back{background:none;border:0;color:var(--muted);padding:0;margin-top:20px}
 .wrapbox{display:flex;gap:8px;margin-top:8px}
-@media (max-width:860px){.two{grid-template-columns:1fr}.steps{grid-template-columns:1fr 1fr}nav{display:none}.hero h1{font-size:26px}}
-@media (max-width:520px){.chip.net{display:none}}
+.tstats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:16px}
+.tstats div{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0}
+.tstats span{display:block;color:var(--muted);font-size:11px}
+.tstats b{font:500 13px var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.chart{width:100%;height:200px;display:block}
+.subtabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:-4px 0 12px}
+.subtabs button{background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:8px 10px;font-weight:500}
+.subtabs button.on{color:var(--text);border-color:var(--accent)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{color:var(--muted);font-weight:500;text-align:left;padding:6px 4px;border-bottom:1px solid var(--line)}
+td{padding:7px 4px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12px}
+td.r,th.r{text-align:right}
+.tblwrap{overflow-x:auto}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.ph{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin-top:10px;cursor:pointer;user-select:none}
+.toggle input{width:auto;margin:0}
+@media (max-width:900px){.two{grid-template-columns:1fr}.tstats{grid-template-columns:repeat(3,1fr)}nav{display:none}.hero h1{font-size:26px}}
+@media (max-width:520px){.chip.net{display:none}.tstats{grid-template-columns:1fr 1fr}.topbar .hide-sm{display:none}}
 </style>
 </head>
 <body>
+<div class="topbar"><div class="wrap">
+  <span>GIWA Sepolia testnet</span><span class="hide-sm">· Tokens have no real value</span><span class="sp"></span>
+  <a href="https://faucet.giwa.io/" target="_blank" rel="noopener">Get test ETH ↗</a>
+  <a href="https://sepolia-bridge.giwa.io/" target="_blank" rel="noopener">Bridge ETH ↗</a>
+</div></div>
 <header>
   <div class="wrap bar">
     <a class="logo" href="#/"><i>▲</i>Aromma</a>
     <nav>
       <button data-go="#/" id="nav-explore">Explore</button>
-      <button data-go="#/create" id="nav-create">Launch a token</button>
-      <button data-go="#/wallet" id="nav-wallet">Wallet</button>
+      <button data-go="#/create" id="nav-create">Launch</button>
+      <button data-go="#/portfolio" id="nav-portfolio">Portfolio</button>
     </nav>
     <div class="sp"></div>
-    <span class="chip net">GIWA Sepolia · <b id="blk">…</b></span>
+    <span class="chip net">Block <b id="blk">…</b></span>
     <button class="btn sm" id="connect">Connect wallet</button>
   </div>
 </header>
@@ -115,21 +146,26 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:12px;paddin
   <!-- EXPLORE -->
   <section id="v-explore">
     <div class="hero">
-      <h1>Launch a token on <span>GIWA</span> in one click.<br/>Trade it on a bonding curve until it graduates.</h1>
-      <p>Aromma is a launchpad built on the Ammora SDK. Every token starts on an Ammora ALC bonding curve. When the curve fills, it graduates to a concentrated-liquidity pool with locked LP. Testnet only.</p>
-      <div class="stats">
-        <div class="stat"><div>Launches indexed</div><b id="st-total">–</b></div>
-        <div class="stat"><div>Trading on curve</div><b id="st-active">–</b></div>
-        <div class="stat"><div>Graduated</div><b id="st-grad">–</b></div>
+      <div>
+        <h1>Launch a token on <span>GIWA</span> in one click.<br/>Trade it until it graduates.</h1>
+        <p>Every Aromma token starts on an Ammora bonding curve. When the curve fills, it graduates into a concentrated-liquidity pool with locked LP, and trading continues there. Built with the Ammora SDK.</p>
       </div>
+      <button class="btn" data-go="#/create">+ Launch a token</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><div>Launches</div><b id="st-total">–</b></div>
+      <div class="stat"><div>Live on curve</div><b id="st-active">–</b></div>
+      <div class="stat"><div>Graduated</div><b id="st-grad">–</b></div>
+      <div class="stat"><div>WETH on curves</div><b id="st-raised">–</b></div>
+      <div class="stat"><div>Creators</div><b id="st-creators">–</b></div>
     </div>
     <div class="toolbar">
       <input id="q" placeholder="Search name, symbol or address…" />
       <div class="seg" id="filter">
-        <button data-f="all" class="on">All</button>
-        <button data-f="1">Live</button>
-        <button data-f="2">Graduating</button>
-        <button data-f="3">Graduated</button>
+        <button data-f="new" class="on">New</button>
+        <button data-f="near">Near graduation</button>
+        <button data-f="top">Top raised</button>
+        <button data-f="grad">Graduated</button>
       </div>
       <button class="btn ghost sm" id="refresh">Refresh</button>
     </div>
@@ -141,7 +177,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:12px;paddin
     <div class="two">
       <div class="panel">
         <h2 style="margin:0 0 4px">Launch a token</h2>
-        <div class="note" style="margin:0">Creates a new ERC-20 and its bonding curve in a single transaction through the Ammora V4 LaunchFactory.</div>
+        <div class="note" style="margin:0">Creates a new ERC-20 and its bonding curve in one transaction through the Ammora V4 LaunchFactory.</div>
         <label>Token name</label>
         <input id="c-name" maxlength="32" placeholder="e.g. Saigon Coffee" />
         <label>Symbol</label>
@@ -150,6 +186,8 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:12px;paddin
         <input id="c-img" placeholder="https://… (png, jpg or svg)" />
         <label>Description (optional)</label>
         <textarea id="c-desc" maxlength="240" placeholder="What is this token about?"></textarea>
+        <label>Website or X link (optional)</label>
+        <input id="c-web" placeholder="https://…" />
         <label>Launch config</label>
         <select id="c-cfg"><option value="6">Config #6 · Ammora reviewed template (loading…)</option></select>
         <div class="preview">
@@ -157,19 +195,20 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:12px;paddin
           <div><div style="font-weight:600" id="pv-name">Your token</div><div class="mono" style="color:var(--muted)" id="pv-sym">$SYMBOL</div></div>
         </div>
         <button class="btn full" id="c-go" style="margin-top:16px">Launch token</button>
+        <div class="note">Use your own name and artwork. Do not copy the name or logo of an existing project.</div>
         <div class="log" id="c-log"></div>
       </div>
-      <div>
+      <div class="stack">
         <div class="panel">
           <h3 style="margin:0 0 10px">Config details</h3>
           <div class="kv" id="cfg-kv"><div>Status</div><div>loading…</div></div>
           <div class="note">The config fixes supply, curve shape, fees and graduation rules for every token launched with it. Values are read live from the Ammora ConfigRegistry.</div>
         </div>
-        <div class="steps" style="grid-template-columns:1fr 1fr">
+        <div class="steps">
           <div class="step"><em>01</em><b>Launch</b><span>Token + curve created together</span></div>
-          <div class="step"><em>02</em><b>Trade</b><span>Buy and sell on the ALC curve with WETH</span></div>
-          <div class="step"><em>03</em><b>Fill</b><span>The final buy reaches the graduation threshold</span></div>
-          <div class="step"><em>04</em><b>Graduate</b><span>Migrates to an ARL pool with locked LP</span></div>
+          <div class="step"><em>02</em><b>Trade</b><span>Buy and sell on the curve with ETH</span></div>
+          <div class="step"><em>03</em><b>Fill</b><span>The final buy reaches the graduation target</span></div>
+          <div class="step"><em>04</em><b>Graduate</b><span>Migrates to a pool with locked LP; creator earns fees</span></div>
         </div>
       </div>
     </div>
@@ -179,57 +218,85 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:12px;paddin
   <section id="v-token" class="hidden">
     <button class="back" data-go="#/">← All launches</button>
     <div class="two">
-      <div>
+      <div class="stack">
         <div class="panel">
-          <div class="tk" style="justify-content:space-between">
+          <div class="ph">
             <div class="tk"><div class="av" id="t-av" style="width:56px;height:56px"></div>
-              <div style="min-width:0"><div class="n" style="font-size:20px" id="t-name">…</div><div class="s" id="t-sym"></div></div></div>
-            <span class="badge b0" id="t-badge">…</span>
+              <div style="min-width:0"><div class="n" style="font-size:20px" id="t-name">…</div><div class="s" id="t-sym"></div></div>
+              <span class="badge b0" id="t-badge">…</span></div>
+            <div class="actions">
+              <button class="icon-btn" id="t-copy">Copy address</button>
+              <button class="icon-btn" id="t-share">Share on X</button>
+              <a class="icon-btn" id="t-exp" target="_blank" rel="noopener">Explorer ↗</a>
+            </div>
           </div>
           <p id="t-desc" style="color:var(--muted);margin:14px 0 0"></p>
+          <div class="tstats">
+            <div><span>Price (WETH)</span><b id="s-price">–</b></div>
+            <div><span>Market cap (WETH)</span><b id="s-mcap">–</b></div>
+            <div><span>Holders</span><b id="s-holders">–</b></div>
+            <div><span>Curve trades</span><b id="s-trades">–</b></div>
+            <div><span>Raised (WETH)</span><b id="s-raised">–</b></div>
+          </div>
           <div style="margin-top:16px">
             <div class="row"><span>Graduation progress</span><span id="t-pct">–</span></div>
             <div class="prog" style="margin-top:6px"><i id="t-bar" style="width:0"></i></div>
           </div>
         </div>
-        <div class="panel" style="margin-top:16px">
-          <h3 style="margin:0 0 12px">On-chain details</h3>
-          <div class="kv" id="t-kv"></div>
+        <div class="panel">
+          <div class="row" style="margin-bottom:8px"><b style="color:var(--text);font-size:15px">Price on the bonding curve</b><span id="ch-note"></span></div>
+          <svg class="chart" id="chart" viewBox="0 0 600 200" preserveAspectRatio="none"></svg>
+        </div>
+        <div class="panel">
+          <div class="subtabs" id="subtabs"><button data-t="act" class="on">Activity</button><button data-t="hold">Holders</button><button data-t="info">Info</button></div>
+          <div id="tab-act" class="tblwrap"></div>
+          <div id="tab-hold" class="tblwrap hidden"></div>
+          <div id="tab-info" class="hidden"><div class="kv" id="t-kv"></div></div>
         </div>
       </div>
-      <div class="panel" id="trade">
+      <div class="panel" id="trade" style="position:sticky;top:84px">
         <div class="tabs2"><button class="buy on" data-side="buy">Buy</button><button class="sell" data-side="sell">Sell</button></div>
-        <label id="tr-lbl">You pay (WETH)</label>
+        <div class="row" style="margin-top:4px"><span>Route</span><span id="tr-route">–</span></div>
+        <label id="tr-lbl">You pay</label>
         <input id="tr-amt" inputmode="decimal" placeholder="0.0" />
-        <div class="row" style="margin-top:6px"><span id="tr-bal">Balance: –</span><span><a href="#" id="tr-max">Max</a></span></div>
-        <label>Slippage</label>
-        <div class="seg" id="slip"><button data-s="50">0.5%</button><button data-s="100" class="on">1%</button><button data-s="300">3%</button></div>
+        <div class="quick" id="tr-quick"></div>
+        <label class="toggle" id="tr-eth-wrap"><input type="checkbox" id="tr-eth" checked /> Pay with ETH (auto-wraps to WETH)</label>
+        <div class="row" style="margin-top:6px"><span id="tr-bal">Balance: –</span></div>
+        <label>Max slippage</label>
+        <div class="seg" id="slip"><button data-s="50">0.5%</button><button data-s="100" class="on">1%</button><button data-s="300">3%</button><button data-s="500">5%</button></div>
         <div class="quote" id="tr-quote"><div class="row"><span>Enter an amount to get a quote</span></div></div>
         <button class="btn full" id="tr-go" disabled>Connect wallet</button>
         <button class="btn ghost full hidden" id="tr-migrate">Graduate: run migration</button>
-        <div class="note" id="tr-note">Curve trades use WETH. Need some? Wrap ETH in the Wallet tab.</div>
+        <div class="note" id="tr-note"></div>
         <div class="log" id="tr-log"></div>
       </div>
     </div>
   </section>
 
-  <!-- WALLET -->
-  <section id="v-wallet" class="hidden">
+  <!-- PORTFOLIO -->
+  <section id="v-portfolio" class="hidden">
     <div class="two">
+      <div class="stack">
+        <div class="panel">
+          <h3 style="margin:0 0 10px">Tokens you hold</h3>
+          <div id="p-hold" class="tblwrap note">Connect a wallet to see your tokens.</div>
+        </div>
+        <div class="panel">
+          <h3 style="margin:0 0 4px">Your launches and creator fees</h3>
+          <div class="note" style="margin:0 0 10px">Creators earn a share of trading fees on their tokens. Fees accrue in the Ammora FeeVault and can be claimed here at any time.</div>
+          <div id="p-mine" class="tblwrap note">Connect a wallet to see tokens you created.</div>
+          <div class="log" id="p-log"></div>
+        </div>
+      </div>
       <div class="panel">
-        <h2 style="margin:0 0 12px">Wallet</h2>
+        <h3 style="margin:0 0 12px">Wallet</h3>
         <div class="kv" id="w-kv"><div>Status</div><div>Not connected</div></div>
         <label>Wrap ETH → WETH</label>
         <div class="wrapbox"><input id="w-wrap" inputmode="decimal" placeholder="0.01" /><button class="btn sm" id="w-wrap-go">Wrap</button></div>
         <label>Unwrap WETH → ETH</label>
         <div class="wrapbox"><input id="w-unwrap" inputmode="decimal" placeholder="0.01" /><button class="btn ghost sm" id="w-unwrap-go">Unwrap</button></div>
         <div class="log" id="w-log"></div>
-      </div>
-      <div class="panel">
-        <h3 style="margin:0 0 10px">My launches</h3>
-        <div id="w-mine" class="note">Connect a wallet to see tokens you created.</div>
-        <h3 style="margin:20px 0 10px">Getting testnet ETH</h3>
-        <div class="note" style="margin:0">GIWA Sepolia gas is paid in ETH. Bridge Sepolia ETH or use the GIWA faucet, then wrap a small amount into WETH to trade on curves.</div>
+        <div class="note">Need gas? Use the <a href="https://faucet.giwa.io/" target="_blank" rel="noopener">GIWA faucet</a> or the <a href="https://sepolia-bridge.giwa.io/" target="_blank" rel="noopener">GIWA bridge</a>.</div>
       </div>
     </div>
   </section>
@@ -238,7 +305,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:12px;paddin
 <footer class="wrap">
   Aromma is an independent community launchpad on GIWA Sepolia testnet (chain 91342), not operated by Ammora Labs. Do not use real funds. Contracts, quotes and transaction plans come from
   <a href="https://www.npmjs.com/package/@ammora-protocol/sdk" target="_blank" rel="noopener">@ammora-protocol/sdk</a>.
-  Launch history is read from the LaunchFactory event log via the GIWA explorer.
+  Launch history, trades and holders are read from the GIWA explorer. <a href="https://github.com/kakulaxxx/aromma" target="_blank" rel="noopener">Source code</a>.
 </footer>
 <div id="toast"></div>
 
@@ -249,6 +316,7 @@ const EXPLORER = 'https://sepolia-explorer.giwa.io';
 const RPC = 'https://sepolia-rpc.giwa.io';
 const CHAIN_ID = 91342;
 const DEFAULT_CONFIG = 6n;
+const SITE = location.origin + location.pathname;
 
 const $ = (id) => document.getElementById(id);
 const toast = (msg, ms = 3500) => { const t = $('toast'); t.textContent = msg; t.style.display = 'block'; clearTimeout(toast.h); toast.h = setTimeout(() => t.style.display = 'none', ms); };
@@ -257,25 +325,27 @@ const short = (a) => a ? a.slice(0, 6) + '…' + a.slice(-4) : '';
 const txLink = (h) => `<a href="${EXPLORER}/tx/${h}" target="_blank" rel="noopener">${short(h)}</a>`;
 const addrLink = (a) => `<a href="${EXPLORER}/address/${a}" target="_blank" rel="noopener">${short(a)}</a>`;
 const STATUS = { 0: ['Not started', 'b0'], 1: ['Live', 'b1'], 2: ['Graduating', 'b2'], 3: ['Graduated', 'b3'] };
+const ago = (sec) => { const d = Date.now() / 1000 - sec; if (d < 60) return Math.max(1, d | 0) + 's'; if (d < 3600) return (d / 60 | 0) + 'm'; if (d < 86400) return (d / 3600 | 0) + 'h'; return (d / 86400 | 0) + 'd'; };
 
 const [V, S] = await Promise.all([import(VIEM_URL), import(SDK_URL)]);
 const D = S.giwaSepoliaAutoRouteDeployment;
 const L = D.contracts.launch;
-const WETH = D.contracts.tokens.wrappedNative;
+const WETH = V.getAddress(D.contracts.tokens.wrappedNative);
 const CORE = { configRegistry: L.configRegistry, launchFactory: L.factory, graduationAdapter: L.graduationAdapter, feePolicy: L.feePolicy };
 const chain = V.defineChain({
   id: CHAIN_ID, name: 'GIWA Sepolia', nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: { default: { http: [RPC] } }, blockExplorers: { default: { name: 'GIWA Explorer', url: EXPLORER } },
   contracts: { multicall3: { address: '0xcA11bde05977b3631167028862bE2a173976CA11', blockCreated: 0 } },
 });
-// Public RPC is rate limited: aggregate reads through Multicall3 and back off on 429.
+// The public RPC is rate limited: aggregate reads through Multicall3 and back off on 429.
 const pub = V.createPublicClient({ chain, batch: { multicall: { wait: 30 } }, transport: V.http(RPC, { retryCount: 5, retryDelay: 700, timeout: 25_000 }) });
 const wethAbi = V.parseAbi(['function deposit() payable', 'function withdraw(uint256)']);
+const poolAbi = S.ammoraLaunchPoolV4Abi, erc = V.erc20Abi;
+const swapEvent = poolAbi.find((x) => x.type === 'event' && x.name === 'Swap');
+const SWAP_TOPIC = V.toEventSelector(swapEvent);
 
-// small concurrency limiter so the public RPC is not flooded
-const limit = (n) => { let active = 0; const q = []; const next = () => { if (active >= n || !q.length) return; active++; const { f, res, rej } = q.shift(); Promise.race([f(), new Promise((_, r) => setTimeout(() => r(new Error('RPC timeout')), 25_000))]).then(res, rej).finally(() => { active--; next(); }); }; return (f) => new Promise((res, rej) => { q.push({ f, res, rej }); next(); }); };
-const rpcQ = limit(6);
-const direct = (f) => f(); // detail page reads skip the background queue
+const fmt = (v, d, max = 6) => { if (v == null) return '–'; const s = V.formatUnits(v, d); const [i, f = ''] = s.split('.'); const ff = f.slice(0, max).replace(/0+$/, ''); return (i.startsWith('-') ? '-' : '') + Number(i.replace('-', '')).toLocaleString('en-US') + (ff ? '.' + ff : ''); };
+const fnum = (x) => { if (!isFinite(x)) return '–'; if (x === 0) return '0'; if (Math.abs(x) >= 1000) return x.toLocaleString('en-US', { maximumFractionDigits: 2 }); if (Math.abs(x) >= 1) return x.toFixed(4).replace(/\.?0+$/, ''); const e = Math.floor(Math.log10(Math.abs(x))); return x.toFixed(Math.min(18, -e + 3)).replace(/0+$/, ''); };
 
 // ---------- wallet ----------
 let wallet = null, account = null;
@@ -295,13 +365,15 @@ async function connect() {
   account = V.getAddress(a);
   wallet = V.createWalletClient({ account, chain, transport: V.custom(window.ethereum) });
   $('connect').textContent = short(account);
-  refreshWallet(); updateTradeButton(); renderMine();
+  route();
 }
-$('connect').onclick = () => connect().catch((e) => toast(e.shortMessage || e.message));
+$('connect').onclick = () => (account ? location.hash = '#/portfolio' : connect().catch((e) => toast(e.shortMessage || e.message)));
 if (window.ethereum) {
-  window.ethereum.on?.('accountsChanged', (a) => { if (a[0]) connect().catch(() => {}); else { account = null; wallet = null; $('connect').textContent = 'Connect wallet'; } });
+  window.ethereum.on?.('accountsChanged', (a) => { if (a[0]) connect().catch(() => {}); else { account = null; wallet = null; $('connect').textContent = 'Connect wallet'; route(); } });
   window.ethereum.request({ method: 'eth_accounts' }).then((a) => { if (a[0]) connect().catch(() => {}); });
 }
+function log(el, html) { el.innerHTML += (el.innerHTML ? '\n' : '') + html; }
+function logErr(el, e) { log(el, `<span class="er">✗ ${esc(e.shortMessage || e.message || e)}</span>`); }
 async function sendTx(tx, logEl, label) {
   if (!wallet) throw new Error('Connect your wallet first');
   await ensureChain();
@@ -310,25 +382,21 @@ async function sendTx(tx, logEl, label) {
   log(logEl, `${label}: sent ${txLink(hash)}, waiting for confirmation…`);
   const receipt = await pub.waitForTransactionReceipt({ hash, timeout: 180_000 });
   if (receipt.status !== 'success') throw new Error(`${label} reverted (${hash})`);
-  log(logEl, `<span class="ok">✓ ${label} confirmed in block ${receipt.blockNumber}</span> ${txLink(hash)}`);
+  log(logEl, `<span class="ok">✓ ${label} confirmed</span> ${txLink(hash)}`);
   return receipt;
 }
-function log(el, html) { el.innerHTML += (el.innerHTML ? '\n' : '') + html; }
-function logErr(el, e) { log(el, `<span class="er">✗ ${esc(e.shortMessage || e.message || e)}</span>`); }
-
-async function balances() {
-  if (!account) return null;
-  const [eth, weth] = await Promise.all([pub.getBalance({ address: account }), pub.readContract({ address: WETH, abi: V.erc20Abi, functionName: 'balanceOf', args: [account] })]);
-  return { eth, weth };
+const bal = (token, who = account) => token === 'ETH' ? pub.getBalance({ address: who }) : pub.readContract({ address: token, abi: erc, functionName: 'balanceOf', args: [who] });
+async function ensureAllowance(token, spender, amount, el) {
+  const a = await pub.readContract({ address: token, abi: erc, functionName: 'allowance', args: [account, spender] });
+  if (a >= amount) return;
+  await sendTx({ to: token, data: V.encodeFunctionData({ abi: erc, functionName: 'approve', args: [spender, amount] }) }, el, 'Approve');
 }
-async function refreshWallet() {
-  const b = await balances(); if (!b) return;
-  $('w-kv').innerHTML = `<div>Address</div><div>${addrLink(account)}</div><div>ETH</div><div>${fmt(b.eth, 18)}</div><div>WETH</div><div>${fmt(b.weth, 18)}</div>`;
+async function wrapIfNeeded(amount, el) {
+  const w = await bal(WETH); if (w >= amount) return;
+  const need = amount - w; const eth = await bal('ETH');
+  if (eth < need) throw new Error(`Not enough ETH: need ${fmt(need, 18)} more WETH but have ${fmt(eth, 18)} ETH`);
+  await sendTx({ to: WETH, data: V.encodeFunctionData({ abi: wethAbi, functionName: 'deposit' }), value: need }, el, `Wrap ${fmt(need, 18)} ETH`);
 }
-const fmt = (v, d, max = 6) => { const s = V.formatUnits(v, d); const [i, f = ''] = s.split('.'); const ff = f.slice(0, max).replace(/0+$/, ''); return Number(i).toLocaleString('en-US') + (ff ? '.' + ff : ''); };
-
-$('w-wrap-go').onclick = async () => { const el = $('w-log'); try { const v = V.parseEther($('w-wrap').value || '0'); if (v <= 0n) throw new Error('Enter an amount'); await sendTx({ to: WETH, data: V.encodeFunctionData({ abi: wethAbi, functionName: 'deposit' }), value: v }, el, 'Wrap'); refreshWallet(); } catch (e) { logErr(el, e); } };
-$('w-unwrap-go').onclick = async () => { const el = $('w-log'); try { const v = V.parseEther($('w-unwrap').value || '0'); if (v <= 0n) throw new Error('Enter an amount'); await sendTx({ to: WETH, data: V.encodeFunctionData({ abi: wethAbi, functionName: 'withdraw', args: [v] }) }, el, 'Unwrap'); refreshWallet(); } catch (e) { logErr(el, e); } };
 
 // ---------- metadata ----------
 function parseMeta(uri) {
@@ -338,68 +406,73 @@ function parseMeta(uri) {
   } catch {}
   return {};
 }
-function makeMeta({ name, symbol, description, image }) {
-  const o = { name, symbol, description: description || undefined, image: image || undefined, launchedWith: 'Aromma (Ammora SDK)' };
-  return 'data:application/json;base64,' + btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+function makeMeta(o) {
+  const m = { name: o.name, symbol: o.symbol, description: o.description || undefined, image: o.image || undefined, website: o.website || undefined, launchedWith: 'Aromma (Ammora SDK)' };
+  return 'data:application/json;base64,' + btoa(unescape(encodeURIComponent(JSON.stringify(m))));
 }
-const safeImg = (u) => /^https:\/\//i.test(u || '') ? u : null;
+const safeUrl = (u) => /^https:\/\//i.test(u || '') ? u : null;
 function avatar(el, meta, sym) {
-  const img = safeImg(meta.image);
+  const img = safeUrl(meta?.image);
   const hue = [...(sym || '?')].reduce((a, c) => a + c.charCodeAt(0) * 37, 0) % 360;
   el.style.background = `linear-gradient(135deg,hsl(${hue} 70% 45%),hsl(${(hue + 60) % 360} 70% 40%))`;
-  el.innerHTML = img ? `<img src="${esc(img)}" alt="" onerror="this.remove()">` : esc((sym || '?').slice(0, 2).toUpperCase());
+  el.innerHTML = img ? `<img src="${esc(img)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">` : esc((sym || '?').slice(0, 2).toUpperCase());
 }
+// sqrtPrice is Q64.64; price = quote raw per base raw
+const spotPrice = (sqrtPrice, baseDec) => { const s = Number(sqrtPrice) / 2 ** 64; return s * s * 10 ** (baseDec - 18); };
 
-// ---------- launches index (LaunchCreated events) ----------
+// ---------- launches index ----------
 const launchEvent = S.ammoraLaunchFactoryV4Abi.find((x) => x.type === 'event' && x.name === 'LaunchCreated');
 const TOPIC = V.toEventSelector(launchEvent);
 let LAUNCHES = [];
-const STATE = new Map(); // curve -> state
-const TOKEN = new Map(); // token -> {name,symbol,decimals}
+const TOKEN = new Map();
 
+async function explorerLogs(address, topic0) {
+  const r = await fetch(`${EXPLORER}/api?module=logs&action=getLogs&fromBlock=0&toBlock=latest&address=${address}&topic0=${topic0}`);
+  const j = await r.json(); return (j.result || []).filter((l) => l && l.topics).map((l) => ({ ...l, topics: l.topics.filter(Boolean) }));
+}
 async function loadLaunches() {
-  // The explorer's etherscan-compatible log API returns the full history in one call;
-  // fall back to the last 10k blocks over RPC if it is unavailable.
-  let raw = [];
-  try {
-    const r = await fetch(`${EXPLORER}/api?module=logs&action=getLogs&fromBlock=0&toBlock=latest&address=${L.factory}&topic0=${TOPIC}`);
-    const j = await r.json(); raw = (j.result || []).map((l) => ({ ...l, blockNumber: BigInt(l.blockNumber), topics: l.topics.filter(Boolean) }));
-  } catch {
-    const head = await pub.getBlockNumber();
-    raw = await pub.getLogs({ address: L.factory, event: launchEvent, fromBlock: head - 9999n, toBlock: head });
-  }
+  let raw;
+  try { raw = await explorerLogs(L.factory, TOPIC); }
+  catch { const head = await pub.getBlockNumber(); raw = await pub.getLogs({ address: L.factory, event: launchEvent, fromBlock: head - 9999n, toBlock: head }); }
   LAUNCHES = raw.map((l) => {
     const { args } = V.decodeEventLog({ abi: S.ammoraLaunchFactoryV4Abi, data: l.data, topics: l.topics });
-    return { token: V.getAddress(args.token), curve: V.getAddress(args.curve), creator: V.getAddress(args.creator), configId: args.configId, metadataURI: args.metadataURI, meta: parseMeta(args.metadataURI), block: BigInt(l.blockNumber), tx: l.transactionHash };
+    return { token: V.getAddress(args.token), curve: V.getAddress(args.curve), creator: V.getAddress(args.creator), configId: args.configId, metadataURI: args.metadataURI, meta: parseMeta(args.metadataURI), block: BigInt(l.blockNumber), time: l.timeStamp ? Number(l.timeStamp) : null, tx: l.transactionHash };
   }).sort((a, b) => (b.block > a.block ? 1 : -1));
 }
-async function tokenInfo(addr, urgent = false) {
+// One Multicall3 round trip per chunk: token name/symbol/decimals + curve status/reserves.
+async function hydrate(list = LAUNCHES.filter((l) => !l._st || !l._ti)) {
+  for (let i = 0; i < list.length; i += 30) {
+    const part = list.slice(i, i + 30);
+    const calls = part.flatMap((l) => [
+      { address: l.token, abi: erc, functionName: 'name' }, { address: l.token, abi: erc, functionName: 'symbol' }, { address: l.token, abi: erc, functionName: 'decimals' },
+      { address: l.curve, abi: poolAbi, functionName: 'status' }, { address: l.curve, abi: poolAbi, functionName: 'quoteReserve' }, { address: l.curve, abi: poolAbi, functionName: 'migrationQuoteThreshold' },
+      { address: l.curve, abi: poolAbi, functionName: 'sqrtPrice' },
+    ]);
+    try {
+      const r = await pub.multicall({ contracts: calls, allowFailure: true });
+      part.forEach((l, k) => {
+        const [n, sy, d, st, qr, th, sp] = r.slice(k * 7, k * 7 + 7).map((x) => x.status === 'success' ? x.result : null);
+        if (n != null && sy != null) { l._ti = { name: n, symbol: sy, decimals: Number(d ?? 18) }; TOKEN.set(l.token, Promise.resolve(l._ti)); }
+        if (st != null) l._st = { status: Number(st), quoteReserve: qr ?? 0n, migrationQuoteThreshold: th ?? 0n, sqrtPrice: sp ?? 0n };
+      });
+    } catch (e) { console.warn('hydrate', e); }
+    soon();
+  }
+}
+async function tokenInfo(addr) {
   if (TOKEN.has(addr)) return TOKEN.get(addr);
-  const p = (urgent ? direct : rpcQ)(async () => {
-    const [name, symbol, decimals] = await Promise.all(['name', 'symbol', 'decimals'].map((f) => pub.readContract({ address: addr, abi: V.erc20Abi, functionName: f })));
-    return { name, symbol, decimals: Number(decimals) };
-  });
+  const p = (async () => { const [name, symbol, decimals] = await Promise.all(['name', 'symbol', 'decimals'].map((f) => pub.readContract({ address: addr, abi: erc, functionName: f }))); return { name, symbol, decimals: Number(decimals) }; })();
   TOKEN.set(addr, p); p.catch(() => TOKEN.delete(addr)); return p;
 }
-async function curveState(curve, fresh = false) {
-  if (!fresh && STATE.has(curve)) return STATE.get(curve);
-  const p = (fresh ? direct : rpcQ)(async () => { const c = new S.AmmoraV4LaunchCurveClient(pub, curve, CORE); return c.getStateAtBlock(await pub.getBlockNumber()); });
-  STATE.set(curve, p); p.catch(() => STATE.delete(curve)); return p;
-}
-const progress = (st) => {
-  if (!st) return 0; if (st.status >= 2) return 100;
-  const t = st.migrationQuoteThreshold; if (!t) return 0;
-  return Math.min(100, Number((st.quoteReserve * 10000n) / t) / 100);
-};
+const progress = (st) => { if (!st) return 0; if (st.status >= 2) return 100; const t = st.migrationQuoteThreshold; if (!t) return 0; return Math.min(100, Number((st.quoteReserve * 10000n) / t) / 100); };
 
-let filter = 'all';
+let filter = 'new';
 function renderGrid() {
   const grid = $('grid'); const q = $('q').value.trim().toLowerCase();
-  const items = LAUNCHES.filter((l) => {
-    const st = l._st; if (filter !== 'all' && (!st || String(st.status) !== filter)) return false;
-    if (!q) return true;
-    return [l.meta.name, l.meta.symbol, l._ti?.name, l._ti?.symbol, l.token, l.curve].some((x) => String(x || '').toLowerCase().includes(q));
-  });
+  let items = LAUNCHES.filter((l) => !q || [l.meta.name, l.meta.symbol, l._ti?.name, l._ti?.symbol, l.token, l.curve].some((x) => String(x || '').toLowerCase().includes(q)));
+  if (filter === 'near') items = items.filter((l) => l._st && l._st.status === 1).sort((a, b) => progress(b._st) - progress(a._st));
+  else if (filter === 'top') items = items.filter((l) => l._st).sort((a, b) => { const v = (x) => x._st.status >= 2 ? x._st.migrationQuoteThreshold : x._st.quoteReserve; return v(b) > v(a) ? 1 : v(b) < v(a) ? -1 : 0; });
+  else if (filter === 'grad') items = items.filter((l) => l._st && l._st.status >= 2);
   if (!items.length) { grid.innerHTML = `<div class="empty">${LAUNCHES.length ? 'No launches match.' : 'No launches yet. Be the first!'}</div>`; return; }
   grid.innerHTML = '';
   for (const l of items) {
@@ -407,8 +480,8 @@ function renderGrid() {
     const st = l._st; const [lbl, cls] = st ? STATUS[st.status] : ['…', 'b0']; const pct = progress(st);
     const el = document.createElement('div'); el.className = 'card'; el.onclick = () => location.hash = '#/token/' + l.curve;
     el.innerHTML = `<div class="row" style="color:inherit"><div class="tk"><div class="av"></div><div style="min-width:0"><div class="n">${esc(name)}</div><div class="s">$${esc(sym)}</div></div></div><span class="badge ${cls}">${lbl}</span></div>
-      <div><div class="row"><span>Curve progress</span><span>${st ? pct.toFixed(1) + '%' : '–'}</span></div><div class="prog" style="margin-top:6px"><i style="width:${pct}%"></i></div></div>
-      <div class="row"><span>by ${short(l.creator)}</span><span>Config #${l.configId}</span></div>`;
+      <div><div class="row"><span>${st && st.status === 1 ? `${fmt(st.quoteReserve, 18, 4)} / ${fmt(st.migrationQuoteThreshold, 18, 4)} WETH` : 'Curve progress'}</span><span>${st ? pct.toFixed(1) + '%' : '–'}</span></div><div class="prog" style="margin-top:6px"><i style="width:${pct}%"></i></div></div>
+      <div class="row"><span>by ${short(l.creator)}</span><span>${l.time ? ago(l.time) + ' ago' : 'Config #' + l.configId}</span></div>`;
     avatar(el.querySelector('.av'), l.meta, sym); grid.appendChild(el);
   }
 }
@@ -416,37 +489,19 @@ function renderStats() {
   const known = LAUNCHES.filter((l) => l._st);
   $('st-total').textContent = LAUNCHES.length;
   $('st-active').textContent = known.filter((l) => l._st.status === 1).length;
-  $('st-grad').textContent = known.filter((l) => l._st.status === 3).length;
+  $('st-grad').textContent = known.filter((l) => l._st.status >= 2).length;
+  $('st-raised').textContent = fmt(known.filter((l) => l._st.status === 1).reduce((a, l) => a + l._st.quoteReserve, 0n), 18, 4);
+  $('st-creators').textContent = new Set(LAUNCHES.map((l) => l.creator)).size;
 }
 let renderT; const soon = () => { clearTimeout(renderT); renderT = setTimeout(() => { renderGrid(); renderStats(); }, 120); };
-// One Multicall3 round trip per chunk: token name/symbol/decimals + curve status/reserves.
-async function hydrate() {
-  const pool = S.ammoraLaunchPoolV4Abi, erc = V.erc20Abi;
-  const todo = LAUNCHES.filter((l) => !l._st || !l._ti);
-  for (let i = 0; i < todo.length; i += 40) {
-    const part = todo.slice(i, i + 40);
-    const calls = part.flatMap((l) => [
-      { address: l.token, abi: erc, functionName: 'name' }, { address: l.token, abi: erc, functionName: 'symbol' }, { address: l.token, abi: erc, functionName: 'decimals' },
-      { address: l.curve, abi: pool, functionName: 'status' }, { address: l.curve, abi: pool, functionName: 'quoteReserve' }, { address: l.curve, abi: pool, functionName: 'migrationQuoteThreshold' },
-    ]);
-    try {
-      const r = await pub.multicall({ contracts: calls, allowFailure: true });
-      part.forEach((l, k) => {
-        const [n, sy, d, st, qr, th] = r.slice(k * 6, k * 6 + 6).map((x) => x.status === 'success' ? x.result : null);
-        if (n != null && sy != null) { l._ti = { name: n, symbol: sy, decimals: Number(d ?? 18) }; TOKEN.set(l.token, Promise.resolve(l._ti)); }
-        if (st != null) l._st = { status: Number(st), quoteReserve: qr ?? 0n, migrationQuoteThreshold: th ?? 0n };
-      });
-    } catch (e) { console.warn('hydrate', e); }
-    soon();
-  }
-}
+let booted;
 async function boot() {
-  try { await loadLaunches(); renderGrid(); renderStats(); hydrate(); }
+  try { await loadLaunches(); renderGrid(); renderStats(); await hydrate(); }
   catch (e) { $('grid').innerHTML = `<div class="empty">Could not load launches: ${esc(e.message)}</div>`; }
 }
 $('q').oninput = renderGrid;
 $('filter').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; filter = b.dataset.f; [...$('filter').children].forEach((x) => x.classList.toggle('on', x === b)); renderGrid(); };
-$('refresh').onclick = () => { STATE.clear(); LAUNCHES.forEach((l) => delete l._st); boot(); };
+$('refresh').onclick = () => { LAUNCHES.forEach((l) => delete l._st); booted = boot(); };
 
 // ---------- create ----------
 const CONFIGS = new Map();
@@ -460,7 +515,7 @@ async function renderConfig() {
   $('cfg-kv').innerHTML = '<div>Status</div><div>loading…</div>';
   try {
     const e = await loadConfig(id); const c = e.config;
-    $('cfg-kv').innerHTML = `<div>Status</div><div>${e.enabled ? '<span style="color:var(--ok)">Enabled</span>' : '<span style="color:var(--danger)">Disabled</span>'}</div>
+    $('cfg-kv').innerHTML = `<div>Status</div><div>${e.enabled ? '<span class="ok">Enabled</span>' : '<span class="er">Disabled</span>'}</div>
       <div>Total supply</div><div>${fmt(c.totalSupply, c.tokenDecimals, 0)}</div>
       <div>Token decimals</div><div>${c.tokenDecimals}</div>
       <div>Quote asset</div><div>WETH ${addrLink(c.quoteToken)}</div>
@@ -473,7 +528,6 @@ async function renderConfig() {
   } catch (err) { $('cfg-kv').innerHTML = `<div>Status</div><div class="er">${esc(err.shortMessage || err.message)}</div>`; }
 }
 async function fillConfigs() {
-  // Offer the reviewed template plus any config already used by live launches.
   const ids = [...new Set([DEFAULT_CONFIG, ...LAUNCHES.map((l) => l.configId)])].sort((a, b) => Number(a - b));
   const sel = $('c-cfg'); const cur = sel.value; sel.innerHTML = '';
   for (const id of ids) {
@@ -489,15 +543,15 @@ $('c-cfg').onchange = renderConfig;
 const updatePreview = () => { const sym = $('c-sym').value.trim().toUpperCase(); $('pv-name').textContent = $('c-name').value.trim() || 'Your token'; $('pv-sym').textContent = '$' + (sym || 'SYMBOL'); avatar($('pv-av'), { image: $('c-img').value.trim() }, sym || '?'); };
 ['c-name', 'c-sym', 'c-img'].forEach((id) => $(id).addEventListener('input', updatePreview));
 $('c-sym').addEventListener('input', (e) => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); });
-
 $('c-go').onclick = async () => {
   const el = $('c-log'); el.innerHTML = ''; const btn = $('c-go');
   try {
     if (!wallet) await connect(); if (!wallet) return;
-    const name = $('c-name').value.trim(), symbol = $('c-sym').value.trim(), image = $('c-img').value.trim(), description = $('c-desc').value.trim();
+    const name = $('c-name').value.trim(), symbol = $('c-sym').value.trim(), image = $('c-img').value.trim(), description = $('c-desc').value.trim(), website = $('c-web').value.trim();
     if (name.length < 2) throw new Error('Name must be at least 2 characters');
     if (symbol.length < 2) throw new Error('Symbol must be at least 2 characters');
-    if (image && !safeImg(image)) throw new Error('Image URL must start with https://');
+    if (image && !safeUrl(image)) throw new Error('Image URL must start with https://');
+    if (website && !safeUrl(website)) throw new Error('Website must start with https://');
     btn.disabled = true;
     const configId = BigInt($('c-cfg').value);
     const block = await pub.getBlockNumber();
@@ -505,81 +559,146 @@ $('c-go').onclick = async () => {
     await S.verifyAmmoraV4CoreAtBlock(pub, CORE, block);
     const entry = await S.getAmmoraV4ConfigAtBlock(pub, L.configRegistry, configId, block);
     if (!entry.enabled) throw new Error(`Config #${configId} is disabled`);
-    const uri = makeMeta({ name, symbol, description, image });
+    const uri = makeMeta({ name, symbol, description, image, website });
     const tx = S.buildCreateAmmoraV4Launch({ name, symbol, metadataURI: uri, creatorMetadataURI: uri, tokenDecimals: entry.config.tokenDecimals }, configId, entry.config.poolCreationFee);
     const receipt = await sendTx({ to: L.factory, ...tx }, el, 'Create launch');
     const created = S.parseAmmoraV4LaunchCreatedReceipt(receipt, L.factory);
     if (created.configId !== configId || created.configHash !== entry.configHash) throw new Error('Receipt does not match the selected config');
     log(el, `<span class="ok">Token ${addrLink(created.token)} · Curve ${addrLink(created.curve)}</span>`);
-    LAUNCHES.unshift({ token: V.getAddress(created.token), curve: V.getAddress(created.curve), creator: account, configId, metadataURI: uri, meta: parseMeta(uri), block: receipt.blockNumber, tx: receipt.transactionHash });
+    const nl = { token: V.getAddress(created.token), curve: V.getAddress(created.curve), creator: account, configId, metadataURI: uri, meta: parseMeta(uri), block: receipt.blockNumber, time: Date.now() / 1000, tx: receipt.transactionHash };
+    LAUNCHES.unshift(nl); hydrate([nl]);
     toast('Token launched! Opening its page…');
-    setTimeout(() => location.hash = '#/token/' + V.getAddress(created.curve), 1200);
+    setTimeout(() => location.hash = '#/token/' + nl.curve, 1200);
   } catch (e) { logErr(el, e); } finally { btn.disabled = false; }
 };
 
-// ---------- token / trade ----------
-let cur = null; // {launch, state, ti}
-let side = 'buy', slipBps = 100, quoteT;
-document.querySelector('.tabs2').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; side = b.dataset.side; document.querySelectorAll('.tabs2 button').forEach((x) => x.classList.toggle('on', x === b)); $('tr-amt').value = ''; updateTradeUi(); };
+// ---------- token page ----------
+let cur = null; // { launch, state, ti, verified, totalSupply, bal, q, model }
+let side = 'buy', slipBps = 100, quoteT, swapClient = null;
+const getSwapClient = async () => swapClient ??= await S.AmmoraSwapClient.create(pub, { deploymentCatalog: { [CHAIN_ID]: D }, factoryProfiles: S.giwaSepoliaAutoRoutePoolProfiles });
+document.querySelector('.tabs2').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; side = b.dataset.side; document.querySelectorAll('.tabs2 button').forEach((x) => x.classList.toggle('on', x === b)); $('tr-amt').value = ''; cur && (cur.q = null); updateTradeUi(); requestQuote(); };
 $('slip').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; slipBps = Number(b.dataset.s); [...$('slip').children].forEach((x) => x.classList.toggle('on', x === b)); requestQuote(); };
-$('tr-amt').oninput = () => { clearTimeout(quoteT); quoteT = setTimeout(requestQuote, 350); };
+$('tr-amt').oninput = () => { clearTimeout(quoteT); quoteT = setTimeout(requestQuote, 400); };
+$('tr-eth').onchange = () => updateTradeUi();
+$('subtabs').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; [...$('subtabs').children].forEach((x) => x.classList.toggle('on', x === b)); ['act', 'hold', 'info'].forEach((t) => $('tab-' + t).classList.toggle('hidden', t !== b.dataset.t)); };
+$('t-copy').onclick = () => { if (!cur) return; navigator.clipboard?.writeText(cur.launch.token).then(() => toast('Token address copied')); };
+$('t-share').onclick = () => { if (!cur) return; const text = `$${cur.ti.symbol} is live on Aromma, a launchpad on @giwa_io built with the Ammora SDK.`; window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(SITE + '#/token/' + cur.launch.curve)}`, '_blank', 'noopener'); };
 
 async function openToken(curve) {
   curve = V.getAddress(curve);
-  if (cur?.launch.curve !== curve) { cur = null; $('t-name').textContent = 'Loading…'; $('t-sym').textContent = ''; $('t-desc').textContent = ''; $('t-kv').innerHTML = '<div>Reading curve state</div><div>…</div>'; $('t-badge').textContent = '…'; $('t-bar').style.width = '0'; $('t-pct').textContent = '–'; }
-  $('tr-log').innerHTML = ''; $('tr-amt').value = ''; $('tr-quote').innerHTML = '<div class="row"><span>Enter an amount to get a quote</span></div>';
-  let launch = LAUNCHES.find((l) => l.curve === curve);
-  const st = await curveState(curve, true);
+  if (cur?.launch.curve !== curve) {
+    cur = null; $('t-name').textContent = 'Loading…'; $('t-sym').textContent = ''; $('t-desc').textContent = ''; $('t-kv').innerHTML = ''; $('t-badge').textContent = '…'; $('t-bar').style.width = '0'; $('t-pct').textContent = '–';
+    ['s-price', 's-mcap', 's-holders', 's-trades', 's-raised'].forEach((id) => $(id).textContent = '–'); $('chart').innerHTML = ''; $('tab-act').innerHTML = '<div class="note">Loading trades…</div>'; $('tab-hold').innerHTML = '<div class="note">Loading holders…</div>';
+  }
+  $('tr-log').innerHTML = '';
+  const sdk = new S.AmmoraV4LaunchCurveClient(pub, curve, CORE);
+  const st = await sdk.getStateAtBlock(await pub.getBlockNumber());
   const token = V.getAddress(st.baseToken);
+  let launch = LAUNCHES.find((l) => l.curve === curve);
   if (!launch) launch = { token, curve, creator: st.creator, configId: st.configId, meta: {}, metadataURI: '' };
-  const ti = await tokenInfo(token, true);
-  // Bind the curve to the reviewed factory and fee policy before trading.
-  const bound = await pub.readContract({ address: L.factory, abi: S.ammoraLaunchFactoryV4Abi, functionName: 'tokenForCurve', args: [curve] });
+  const [ti, bound, totalSupply] = await Promise.all([
+    tokenInfo(token),
+    pub.readContract({ address: L.factory, abi: S.ammoraLaunchFactoryV4Abi, functionName: 'tokenForCurve', args: [curve] }),
+    pub.readContract({ address: token, abi: erc, functionName: 'totalSupply' }),
+  ]);
+  // Bind the curve to the reviewed factory and fee policy before enabling trades.
   const verified = bound.toLowerCase() === token.toLowerCase() && st.feePolicy.toLowerCase() === L.feePolicy.toLowerCase() && st.feePolicyVersion === S.AMMORA_FEE_POLICY_VERSION;
-  cur = { launch, state: st, ti, verified };
-  launch._st = st; launch._ti = ti;
+  const keep = cur?.launch.curve === curve ? cur : {};
+  cur = { ...keep, launch, state: st, ti, verified, totalSupply, q: null };
+  launch._ti = ti; launch._st = { status: st.status, quoteReserve: st.quoteReserve, migrationQuoteThreshold: st.migrationQuoteThreshold, sqrtPrice: st.sqrtPrice };
   $('t-name').textContent = ti.name; $('t-sym').textContent = '$' + ti.symbol;
   avatar($('t-av'), launch.meta, ti.symbol);
-  $('t-desc').textContent = launch.meta.description || '';
+  $('t-desc').innerHTML = esc(launch.meta.description || '') + (safeUrl(launch.meta.website) ? ` <a href="${esc(launch.meta.website)}" target="_blank" rel="noopener nofollow">Website ↗</a>` : '');
+  $('t-exp').href = `${EXPLORER}/token/${token}`;
   const [lbl, cls] = STATUS[st.status]; $('t-badge').className = 'badge ' + cls; $('t-badge').textContent = lbl;
   const pct = progress(st); $('t-pct').textContent = pct.toFixed(2) + '%'; $('t-bar').style.width = pct + '%';
+  const price = spotPrice(st.status === 3 ? st.migrationSqrtPrice || st.sqrtPrice : st.sqrtPrice, ti.decimals);
+  $('s-price').textContent = fnum(price);
+  $('s-mcap').textContent = fnum(price * Number(V.formatUnits(totalSupply, ti.decimals)));
+  $('s-raised').textContent = st.status >= 2 ? fmt(st.migrationQuoteThreshold, 18, 4) : fmt(st.quoteReserve, 18, 4);
   $('t-kv').innerHTML = `<div>Token</div><div>${addrLink(token)}</div><div>Bonding curve</div><div>${addrLink(curve)}</div>
     <div>Creator</div><div>${addrLink(st.creator)}</div><div>Config</div><div>#${st.configId}</div>
-    ${st.status >= 2 ? `<div>Graduation target</div><div>${fmt(st.migrationQuoteThreshold, 18)} WETH · reached</div>` : `<div>WETH raised</div><div>${fmt(st.quoteReserve, 18)} / ${fmt(st.migrationQuoteThreshold, 18)}</div>
-    <div>Tokens left on curve</div><div>${fmt(st.baseReserve, ti.decimals, 2)}</div>`}
-    <div>Current fee</div><div>${(st.currentFeeBps / 100).toFixed(2)}%</div>
+    <div>Total supply</div><div>${fmt(totalSupply, ti.decimals, 0)}</div>
+    ${st.status >= 2 ? `<div>Graduation target</div><div>${fmt(st.migrationQuoteThreshold, 18)} WETH · reached</div>` : `<div>WETH raised</div><div>${fmt(st.quoteReserve, 18)} / ${fmt(st.migrationQuoteThreshold, 18)}</div><div>Tokens left on curve</div><div>${fmt(st.baseReserve, ti.decimals, 2)}</div>`}
+    <div>Curve fee</div><div>${(st.currentFeeBps / 100).toFixed(2)}%</div>
     ${st.status === 3 ? `<div>Graduated pool</div><div>${addrLink(st.canonicalPool)}</div>` : ''}
-    <div>Factory binding</div><div>${verified ? '<span style="color:var(--ok)">Verified</span>' : '<span style="color:var(--danger)">Unverified</span>'}</div>
+    <div>Fee vault</div><div>${addrLink(st.feeVault)}</div>
+    <div>Factory binding</div><div>${verified ? '<span class="ok">Verified</span>' : '<span class="er">Unverified</span>'}</div>
     ${launch.tx ? `<div>Launch tx</div><div>${txLink(launch.tx)}</div>` : ''}`;
   updateTradeUi();
+  loadActivity(launch, ti); loadHolders(token, ti, st);
 }
+
+async function loadActivity(launch, ti) {
+  try {
+    const logs = await explorerLogs(launch.curve, SWAP_TOPIC);
+    const trades = logs.map((l) => { const { args } = V.decodeEventLog({ abi: poolAbi, data: l.data, topics: l.topics }); const sell = args.baseForQuote; const base = sell ? args.amountIn : args.amountOut; const quote = sell ? args.amountOut : args.amountIn - args.amountLeft; return { sell, base, quote, trader: args.trader, recipient: args.recipient, time: Number(l.timeStamp), tx: l.transactionHash, block: Number(l.blockNumber), price: Number(quote) / Number(base) * 10 ** (ti.decimals - 18) }; }).filter((t) => t.base > 0n).sort((a, b) => a.block - b.block);
+    $('s-trades').textContent = trades.length.toLocaleString('en-US');
+    drawChart(trades);
+    const rows = trades.slice().reverse().slice(0, 30);
+    $('tab-act').innerHTML = rows.length ? `<table><tr><th>Time</th><th>Type</th><th class="r">WETH</th><th class="r">${esc(ti.symbol)}</th><th class="r">Trader</th></tr>${rows.map((t) => `<tr><td><a href="${EXPLORER}/tx/${t.tx}" target="_blank" rel="noopener">${ago(t.time)}</a></td><td class="${t.sell ? 'er' : 'ok'}">${t.sell ? 'Sell' : 'Buy'}</td><td class="r">${fmt(t.quote, 18, 6)}</td><td class="r">${fmt(t.base, ti.decimals, 2)}</td><td class="r">${addrLink(t.recipient || t.trader)}</td></tr>`).join('')}</table>` : '<div class="note">No curve trades yet. Be the first buyer.</div>';
+  } catch (e) { $('tab-act').innerHTML = `<div class="note">Could not load trades (${esc(e.message)})</div>`; }
+}
+function drawChart(trades) {
+  const svg = $('chart');
+  if (trades.length < 2) { svg.innerHTML = `<text x="300" y="105" fill="#8b93a7" font-size="13" text-anchor="middle">${trades.length ? 'One trade so far' : 'No trades yet'}</text>`; $('ch-note').textContent = ''; return; }
+  const ps = trades.map((t) => t.price); const lo = Math.min(...ps), hi = Math.max(...ps); const pad = (hi - lo) * 0.1 || hi * 0.1;
+  const y = (p) => 190 - ((p - lo + pad) / (hi - lo + 2 * pad)) * 180; const x = (i) => (i / (trades.length - 1)) * 600;
+  const pts = trades.map((t, i) => `${x(i).toFixed(1)},${y(t.price).toFixed(1)}`).join(' ');
+  svg.innerHTML = `<defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#37e2b4" stop-opacity=".35"/><stop offset="1" stop-color="#37e2b4" stop-opacity="0"/></linearGradient></defs>
+    <polygon points="0,200 ${pts} 600,200" fill="url(#cg)"/><polyline points="${pts}" fill="none" stroke="#37e2b4" stroke-width="2" vector-effect="non-scaling-stroke"/>`;
+  const first = ps[0], last = ps[ps.length - 1]; const ch = (last / first - 1) * 100;
+  $('ch-note').innerHTML = `<span class="${ch >= 0 ? 'ok' : 'er'}">${ch >= 0 ? '+' : ''}${ch.toFixed(1)}%</span> over ${trades.length} trades`;
+}
+async function loadHolders(token, ti, st) {
+  try {
+    const [info, h] = await Promise.all([fetch(`${EXPLORER}/api/v2/tokens/${token}`).then((r) => r.json()), fetch(`${EXPLORER}/api/v2/tokens/${token}/holders`).then((r) => r.json())]);
+    $('s-holders').textContent = Number(info.holders_count ?? info.holders ?? 0).toLocaleString('en-US');
+    const sup = BigInt(info.total_supply || cur?.totalSupply || 1n);
+    const tag = (a) => { const x = a.toLowerCase(); if (x === cur?.launch.curve.toLowerCase()) return ' <span class="badge b1">curve</span>'; if (st.canonicalPool && x === st.canonicalPool.toLowerCase()) return ' <span class="badge b3">pool</span>'; if (x === st.creator.toLowerCase()) return ' <span class="badge b0">creator</span>'; if (account && x === account.toLowerCase()) return ' <span class="badge b2">you</span>'; return ''; };
+    const items = (h.items || []).slice(0, 20);
+    $('tab-hold').innerHTML = items.length ? `<table><tr><th>#</th><th>Address</th><th class="r">Amount</th><th class="r">Share</th></tr>${items.map((x, i) => { const v = BigInt(x.value); return `<tr><td>${i + 1}</td><td>${addrLink(x.address.hash)}${tag(x.address.hash)}</td><td class="r">${fmt(v, ti.decimals, 2)}</td><td class="r">${(Number(v * 10000n / sup) / 100).toFixed(2)}%</td></tr>`; }).join('')}</table>` : '<div class="note">No holders indexed yet.</div>';
+  } catch (e) { $('tab-hold').innerHTML = `<div class="note">Could not load holders (${esc(e.message)})</div>`; }
+}
+
+// ----- trading -----
+const isPool = () => cur?.state.status === 3;
+const inDec = () => side === 'buy' ? 18 : cur.ti.decimals;
+const outDec = () => side === 'buy' ? cur.ti.decimals : 18;
+const payWithEth = () => side === 'buy' && $('tr-eth').checked;
 async function updateTradeUi() {
   if (!cur) return; const st = cur.state;
-  $('tr-lbl').textContent = side === 'buy' ? 'You pay (WETH)' : `You sell (${cur.ti.symbol})`;
+  $('tr-route').innerHTML = isPool() ? `Ammora pool ${addrLink(st.canonicalPool)}` : st.status === 1 ? 'Bonding curve' : 'Waiting for migration';
+  $('tr-lbl').textContent = side === 'buy' ? (payWithEth() ? 'You pay (ETH)' : 'You pay (WETH)') : `You sell (${cur.ti.symbol})`;
+  $('tr-eth-wrap').classList.toggle('hidden', side !== 'buy');
+  $('tr-quick').innerHTML = side === 'buy' ? ['0.0001', '0.001', '0.005', '0.01'].map((v) => `<button data-v="${v}">${v}</button>`).join('') : [25, 50, 75, 100].map((p) => `<button data-p="${p}">${p === 100 ? 'Max' : p + '%'}</button>`).join('');
   $('tr-migrate').classList.toggle('hidden', st.status !== 2);
-  $('tr-note').textContent = st.status === 3 ? 'This token has graduated. The bonding curve is closed; it now trades in its Ammora concentrated pool.' : st.status === 2 ? 'The curve is full. Anyone can run the migration to create the graduated pool.' : 'Curve trades use WETH. Need some? Wrap ETH in the Wallet tab.';
+  $('tr-note').textContent = isPool() ? 'This token graduated. Trades route through its Ammora concentrated-liquidity pool; LP is locked.' : st.status === 2 ? 'The curve is full. Anyone can run the migration to open the graduated pool.' : 'Prices move along the Ammora bonding curve. The final buy that fills the curve graduates the token.';
   updateTradeButton();
   if (account) {
-    const bal = side === 'buy' ? await pub.readContract({ address: WETH, abi: V.erc20Abi, functionName: 'balanceOf', args: [account] }) : await pub.readContract({ address: cur.launch.token, abi: V.erc20Abi, functionName: 'balanceOf', args: [account] });
-    cur.bal = bal; $('tr-bal').textContent = `Balance: ${fmt(bal, side === 'buy' ? 18 : cur.ti.decimals)} ${side === 'buy' ? 'WETH' : cur.ti.symbol}`;
-  } else $('tr-bal').textContent = 'Balance: –';
+    const [eth, weth, tok] = await Promise.all([bal('ETH'), bal(WETH), bal(cur.launch.token)]);
+    cur.bals = { eth, weth, tok };
+    $('tr-bal').textContent = side === 'buy' ? `Balance: ${fmt(eth, 18, 5)} ETH · ${fmt(weth, 18, 5)} WETH` : `Balance: ${fmt(tok, cur.ti.decimals, 2)} ${cur.ti.symbol}`;
+  } else $('tr-bal').textContent = 'Balance: connect wallet';
 }
-$('tr-max').onclick = (e) => { e.preventDefault(); if (cur?.bal != null) { $('tr-amt').value = V.formatUnits(cur.bal, side === 'buy' ? 18 : cur.ti.decimals); requestQuote(); } };
+$('tr-quick').onclick = (e) => {
+  const b = e.target.closest('button'); if (!b || !cur) return;
+  if (b.dataset.v) $('tr-amt').value = b.dataset.v;
+  else if (cur.bals) { const v = cur.bals.tok * BigInt(b.dataset.p) / 100n; $('tr-amt').value = V.formatUnits(v, cur.ti.decimals); }
+  requestQuote();
+};
 function updateTradeButton() {
-  const b = $('tr-go');
-  if (!cur) return;
+  const b = $('tr-go'); if (!cur) return;
   if (!account) { b.textContent = 'Connect wallet'; b.disabled = false; return; }
-  if (cur.state.status !== 1) { b.textContent = 'Curve closed'; b.disabled = true; return; }
+  if (cur.state.status === 2 || cur.state.status === 0) { b.textContent = 'Trading paused'; b.disabled = true; return; }
   if (!cur.verified) { b.textContent = 'Unverified curve'; b.disabled = true; return; }
   b.textContent = side === 'buy' ? `Buy ${cur.ti.symbol}` : `Sell ${cur.ti.symbol}`; b.disabled = !cur.q;
 }
-function inputAmount() {
-  const v = $('tr-amt').value.trim(); if (!/^\d*\.?\d+$/.test(v)) return 0n;
-  try { return V.parseUnits(v, side === 'buy' ? 18 : cur.ti.decimals); } catch { return 0n; }
-}
-// Mirrors the Ammora example planner: quote at an explicit block, classify the fill,
-// bind a minimum output, and encode swapExactInput on the V4 launch pool.
-async function planTrade(amountIn, blockNumber) {
+function inputAmount() { const v = $('tr-amt').value.trim(); if (!/^\d*\.?\d+$/.test(v)) return 0n; try { return V.parseUnits(v, inDec()); } catch { return 0n; } }
+
+// Curve plan mirrors the Ammora example planner: quote at an explicit block, classify
+// the fill, bind a minimum output and encode swapExactInput on the V4 launch pool.
+async function planCurve(amountIn, blockNumber) {
   const curve = cur.launch.curve; const baseForQuote = side === 'sell';
   const sdk = new S.AmmoraV4LaunchCurveClient(pub, curve, CORE);
   const state = await sdk.getStateAtBlock(blockNumber);
@@ -590,28 +709,55 @@ async function planTrade(amountIn, blockNumber) {
   if (fill.kind !== 'full' && !(boundary && !baseForQuote)) throw new Error(fill.kind === 'terminal-dust' ? 'Curve is at its last dust; wait for graduation.' : `This order cannot fill completely (${fill.kind}). Try a smaller amount.`);
   const minOut = quote.amountOut * BigInt(10_000 - slipBps) / 10_000n;
   if (minOut === 0n) throw new Error('Amount too small');
-  const block = await pub.getBlock({ blockNumber });
   const deadline = BigInt(Math.floor(Date.now() / 1000)) + 20n * 60n;
+  const a = Number(state.sqrtPrice), n = Number(quote.nextSqrtPrice);
+  const impact = n && a ? Math.abs((n * n) / (a * a) - 1) * 100 : null;
   return {
-    quote, fill, boundary, minOut, tokenIn: baseForQuote ? state.baseToken : state.quoteToken,
-    tx: { to: curve, data: V.encodeFunctionData({ abi: S.ammoraLaunchPoolV4Abi, functionName: 'swapExactInput', args: [amountIn, minOut, baseForQuote, boundary, account ?? V.zeroAddress, deadline > block.timestamp ? deadline : block.timestamp + 1200n] }) },
+    route: 'curve', tokenIn: baseForQuote ? state.baseToken : state.quoteToken, spender: curve, amountIn,
+    used: quote.amountIn, out: quote.amountOut, minOut, fee: quote.fee, feeDec: baseForQuote ? cur.ti.decimals : 18, impact, boundary,
+    tx: { to: curve, data: V.encodeFunctionData({ abi: poolAbi, functionName: 'swapExactInput', args: [amountIn, minOut, baseForQuote, boundary, account ?? V.zeroAddress, deadline] }) },
   };
 }
+// Graduated tokens trade in the Ammora pool through AmmoraSwapClient.prepareExactIn.
+async function planPool(amountIn) {
+  if (!account) throw new Error('Connect your wallet to quote the graduated pool');
+  const sc = await getSwapClient();
+  const tokenIn = side === 'buy' ? WETH : cur.launch.token;
+  const block = await S.resolveAmmoraFinalizedHead([pub], S.giwaSepoliaAutoRoute.finality);
+  const models = cur.model ? [cur.model] : ['concentrated', 'compounding'];
+  let last;
+  for (const model of models) {
+    try {
+      const r = await sc.prepareExactIn({ model, pool: cur.state.canonicalPool, tokenIn, inputAsset: 'erc20', amountIn, payer: account, recipient: account, slippageBps: slipBps, executionMode: 'direct-wallet' }, block);
+      cur.model = model;
+      return { route: 'pool', tokenIn, amountIn, used: r.quote.fillableAmountIn ?? amountIn, out: r.quote.expectedAmountOut, minOut: r.quote.minimumAmountOut, fee: r.quote.feeAmount, feeDec: r.quote.feeToken && V.getAddress(r.quote.feeToken) === WETH ? 18 : cur.ti.decimals, impact: r.quote.priceImpactBps == null ? null : Number(r.quote.priceImpactBps) / 100, tx: r.transaction, approvals: r.approvalRequirements || [] };
+    } catch (e) { last = e; }
+  }
+  throw new Error(/revert/i.test(last?.message || '') ? 'Pool quote failed. Check that your wallet holds enough of the input token (WETH for buys).' : (last?.shortMessage || last?.message));
+}
+const plan = async (amt) => isPool() ? planPool(amt) : planCurve(amt, await pub.getBlockNumber());
+
 async function requestQuote() {
-  if (!cur || cur.state.status !== 1) return;
+  if (!cur || (cur.state.status !== 1 && cur.state.status !== 3)) return;
   const amt = inputAmount(); cur.q = null; updateTradeButton();
   if (amt <= 0n) { $('tr-quote').innerHTML = '<div class="row"><span>Enter an amount to get a quote</span></div>'; return; }
+  if (isPool() && payWithEth() && cur.bals && cur.bals.weth < amt) {
+    $('tr-quote').innerHTML = '<div class="row"><span>Pool quotes need WETH in your wallet. Click Buy to wrap first, or wrap in Portfolio.</span></div>';
+    cur.q = { amt, needsWrapFirst: true }; updateTradeButton(); return;
+  }
   $('tr-quote').innerHTML = '<div class="row"><span>Quoting…</span></div>';
   try {
-    const p = await planTrade(amt, await pub.getBlockNumber());
-    cur.q = { amt, p };
-    const outDec = side === 'buy' ? cur.ti.decimals : 18, outSym = side === 'buy' ? cur.ti.symbol : 'WETH';
-    const inDec = side === 'buy' ? 18 : cur.ti.decimals;
-    $('tr-quote').innerHTML = `<div class="row"><span>You receive (est.)</span><b style="color:var(--text)">${fmt(p.quote.amountOut, outDec)} ${esc(outSym)}</b></div>
-      <div class="row"><span>Minimum after ${slipBps / 100}% slippage</span><span>${fmt(p.minOut, outDec)}</span></div>
-      <div class="row"><span>Fee</span><span>${fmt(p.quote.fee ?? 0n, side === 'buy' ? 18 : cur.ti.decimals)}</span></div>
-      ${p.boundary ? `<div class="row" style="color:var(--warn)"><span>Final buy: graduates the curve. Only ${fmt(p.quote.amountIn, inDec)} WETH is used.</span></div>` : ''}`;
-  } catch (e) { $('tr-quote').innerHTML = `<div class="row"><span class="er" style="color:var(--danger)">${esc(e.shortMessage || e.message)}</span></div>`; }
+    const p = await plan(amt); cur.q = { amt, p };
+    const outSym = side === 'buy' ? cur.ti.symbol : 'WETH';
+    const imp = p.impact; const impCls = imp == null ? '' : imp > 15 ? 'er' : imp > 5 ? 'wn' : '';
+    const wrapNeed = payWithEth() && cur.bals && cur.bals.weth < amt ? amt - cur.bals.weth : 0n;
+    $('tr-quote').innerHTML = `<div class="row"><span>You receive (est.)</span><b style="color:var(--text)">${fmt(p.out, outDec())} ${esc(outSym)}</b></div>
+      <div class="row"><span>Minimum received</span><span>${fmt(p.minOut, outDec())}</span></div>
+      <div class="row"><span>Price impact</span><span class="${impCls}">${imp == null ? '–' : imp.toFixed(2) + '%'}</span></div>
+      <div class="row"><span>Fee</span><span>${fmt(p.fee ?? 0n, p.feeDec)} ${p.feeDec === 18 ? 'WETH' : esc(cur.ti.symbol)}</span></div>
+      ${wrapNeed > 0n ? `<div class="row"><span>Auto-wrap first</span><span>${fmt(wrapNeed, 18)} ETH → WETH</span></div>` : ''}
+      ${p.boundary ? `<div class="row wn"><span>Final buy: this order graduates the curve. Only ${fmt(p.used, 18)} WETH is used.</span></div>` : ''}`;
+  } catch (e) { $('tr-quote').innerHTML = `<div class="row"><span class="er">${esc(e.shortMessage || e.message)}</span></div>`; }
   updateTradeButton();
 }
 $('tr-go').onclick = async () => {
@@ -619,17 +765,18 @@ $('tr-go').onclick = async () => {
   const el = $('tr-log'); el.innerHTML = ''; const btn = $('tr-go'); btn.disabled = true;
   try {
     const amt = inputAmount(); if (amt <= 0n) throw new Error('Enter an amount');
-    if (cur.bal != null && amt > cur.bal) throw new Error('Insufficient balance');
+    if (side === 'buy') {
+      if (payWithEth()) await wrapIfNeeded(amt, el);
+      else if ((await bal(WETH)) < amt) throw new Error('Not enough WETH. Tick "Pay with ETH" to wrap automatically.');
+    } else if ((await bal(cur.launch.token)) < amt) throw new Error('Insufficient token balance');
     // Re-plan on fresh state right before signing.
-    const p = await planTrade(amt, await pub.getBlockNumber());
-    const allowance = await pub.readContract({ address: p.tokenIn, abi: V.erc20Abi, functionName: 'allowance', args: [account, cur.launch.curve] });
-    if (allowance < amt) {
-      await sendTx({ to: p.tokenIn, data: V.encodeFunctionData({ abi: V.erc20Abi, functionName: 'approve', args: [cur.launch.curve, amt] }) }, el, 'Approve');
-    }
-    await pub.call({ account, to: p.tx.to, data: p.tx.data }).catch((e) => { throw new Error('Simulation failed: ' + (e.shortMessage || e.message)); });
+    const p = await plan(amt);
+    if (p.route === 'pool') { for (const a of p.approvals) await ensureAllowance(a.token, a.spender, a.amount, el); }
+    else await ensureAllowance(p.tokenIn, p.spender, amt, el);
+    await pub.call({ account, to: p.tx.to, data: p.tx.data, value: p.tx.value ?? 0n }).catch((e) => { throw new Error('Simulation failed: ' + (e.shortMessage || e.message)); });
     await sendTx(p.tx, el, side === 'buy' ? 'Buy' : 'Sell');
     $('tr-amt').value = ''; cur.q = null;
-    await openToken(cur.launch.curve); refreshWallet();
+    await openToken(cur.launch.curve);
   } catch (e) { logErr(el, e); } finally { updateTradeButton(); }
 };
 $('tr-migrate').onclick = async () => {
@@ -637,39 +784,73 @@ $('tr-migrate').onclick = async () => {
   try {
     if (!wallet) await connect();
     const sdk = new S.AmmoraV4LaunchCurveClient(pub, cur.launch.curve, CORE);
-    const plan = await sdk.planMigrateAtBlock(await pub.getBlockNumber());
-    const tx = plan.transaction ?? plan;
+    const p = await sdk.planMigrateAtBlock(await pub.getBlockNumber());
+    const tx = p.transaction ?? p;
     if (!tx?.to || !tx?.data) throw new Error('Migration is not available yet');
     await sendTx(tx, el, 'Migrate');
     await openToken(cur.launch.curve);
   } catch (e) { logErr(el, e); }
 };
 
-// ---------- my launches ----------
-function renderMine() {
+// ---------- portfolio ----------
+async function renderPortfolio() {
   if (!account) return;
+  const [eth, weth] = await Promise.all([bal('ETH'), bal(WETH)]);
+  $('w-kv').innerHTML = `<div>Address</div><div>${addrLink(account)}</div><div>ETH</div><div>${fmt(eth, 18)}</div><div>WETH</div><div>${fmt(weth, 18)}</div>`;
+  await booted;
+  // Holdings across every Aromma/Ammora launch in one multicall.
+  try {
+    const r = await pub.multicall({ contracts: LAUNCHES.map((l) => ({ address: l.token, abi: erc, functionName: 'balanceOf', args: [account] })), allowFailure: true });
+    const held = LAUNCHES.map((l, i) => ({ l, v: r[i].status === 'success' ? r[i].result : 0n })).filter((x) => x.v > 0n);
+    $('p-hold').innerHTML = held.length ? `<table><tr><th>Token</th><th>Status</th><th class="r">Balance</th><th class="r">Value (WETH)</th></tr>${held.map(({ l, v }) => { const d = l._ti?.decimals ?? 9; const val = l._st ? spotPrice(l._st.sqrtPrice, d) * Number(V.formatUnits(v, d)) : null; return `<tr><td><a href="#/token/${l.curve}">${esc(l._ti?.symbol || short(l.token))}</a></td><td>${l._st ? STATUS[l._st.status][0] : ''}</td><td class="r">${fmt(v, d, 2)}</td><td class="r">${val == null ? '–' : fnum(val)}</td></tr>`; }).join('')}</table>` : '<div class="note">You do not hold any launchpad tokens yet. <a href="#/">Explore →</a></div>';
+  } catch (e) { $('p-hold').innerHTML = `<div class="note">Could not load holdings (${esc(e.message)})</div>`; }
+  // Creator fees: read each launch's fee vault, then claimable(WETH) and claimable(token).
   const mine = LAUNCHES.filter((l) => l.creator === account);
-  $('w-mine').innerHTML = mine.length ? mine.map((l) => `<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)"><a href="#/token/${l.curve}">${esc(l._ti?.name || l.meta.name || short(l.token))}</a><span>${l._st ? STATUS[l._st.status][0] : ''}</span></div>`).join('') : 'No launches from this wallet yet. <a href="#/create">Launch one →</a>';
+  if (!mine.length) { $('p-mine').innerHTML = 'No launches from this wallet yet. <a href="#/create">Launch one →</a>'; return; }
+  $('p-mine').innerHTML = '<div class="note">Reading fee vaults…</div>';
+  try {
+    const ctx = await pub.multicall({ contracts: mine.map((l) => ({ address: l.curve, abi: poolAbi, functionName: 'launchContext' })), allowFailure: true });
+    mine.forEach((l, i) => { const c = ctx[i].status === 'success' ? ctx[i].result : null; l._vault = c ? V.getAddress(Array.isArray(c) ? c[1] : c.vault) : null; });
+    const withVault = mine.filter((l) => l._vault);
+    const cl = await pub.multicall({ contracts: withVault.flatMap((l) => [{ address: l._vault, abi: S.feeVaultAbi, functionName: 'claimable', args: [WETH, account] }, { address: l._vault, abi: S.feeVaultAbi, functionName: 'claimable', args: [l.token, account] }]), allowFailure: true });
+    withVault.forEach((l, i) => { l._fq = cl[i * 2].status === 'success' ? cl[i * 2].result : 0n; l._ft = cl[i * 2 + 1].status === 'success' ? cl[i * 2 + 1].result : 0n; });
+    $('p-mine').innerHTML = `<table><tr><th>Token</th><th>Status</th><th class="r">Fees (WETH)</th><th class="r">Fees (token)</th><th></th></tr>${mine.map((l) => `<tr><td><a href="#/token/${l.curve}">${esc(l._ti?.symbol || short(l.token))}</a></td><td>${l._st ? STATUS[l._st.status][0] : ''}</td><td class="r">${l._vault ? fmt(l._fq, 18) : '–'}</td><td class="r">${l._vault ? fmt(l._ft, l._ti?.decimals ?? 9, 2) : '–'}</td><td class="r">${l._vault && (l._fq > 0n || l._ft > 0n) ? `<button class="btn sm" data-claim="${l.curve}">Claim</button>` : ''}</td></tr>`).join('')}</table>
+      <div class="note">A fee vault is shared across launches, so the same balance can appear on several of your tokens. Claim once.</div>`;
+  } catch (e) { $('p-mine').innerHTML = `<div class="note">Could not read fee vaults (${esc(e.message)})</div>`; }
 }
+$('p-mine').onclick = async (e) => {
+  const b = e.target.closest('[data-claim]'); if (!b) return; const el = $('p-log'); el.innerHTML = ''; b.disabled = true;
+  try {
+    const l = LAUNCHES.find((x) => x.curve === b.dataset.claim);
+    for (const [tok, label] of [[WETH, 'WETH'], [l.token, l._ti?.symbol || 'token']]) {
+      const c = await pub.readContract({ address: l._vault, abi: S.feeVaultAbi, functionName: 'claimable', args: [tok, account] });
+      if (c > 0n) await sendTx({ to: l._vault, data: V.encodeFunctionData({ abi: S.feeVaultAbi, functionName: 'claimFor', args: [tok, account, account] }) }, el, `Claim ${label} fees`);
+    }
+    renderPortfolio();
+  } catch (err) { logErr(el, err); b.disabled = false; }
+};
+$('w-wrap-go').onclick = async () => { const el = $('w-log'); try { const v = V.parseEther($('w-wrap').value || '0'); if (v <= 0n) throw new Error('Enter an amount'); await sendTx({ to: WETH, data: V.encodeFunctionData({ abi: wethAbi, functionName: 'deposit' }), value: v }, el, 'Wrap'); renderPortfolio(); } catch (e) { logErr(el, e); } };
+$('w-unwrap-go').onclick = async () => { const el = $('w-log'); try { const v = V.parseEther($('w-unwrap').value || '0'); if (v <= 0n) throw new Error('Enter an amount'); await sendTx({ to: WETH, data: V.encodeFunctionData({ abi: wethAbi, functionName: 'withdraw', args: [v] }) }, el, 'Unwrap'); renderPortfolio(); } catch (e) { logErr(el, e); } };
 
 // ---------- router ----------
 document.querySelectorAll('[data-go]').forEach((b) => b.onclick = () => location.hash = b.dataset.go);
 function route() {
   const h = location.hash || '#/';
-  const views = { explore: $('v-explore'), create: $('v-create'), token: $('v-token'), wallet: $('v-wallet') };
+  const views = { explore: $('v-explore'), create: $('v-create'), token: $('v-token'), portfolio: $('v-portfolio') };
   let v = 'explore';
-  if (h.startsWith('#/create')) v = 'create'; else if (h.startsWith('#/token/')) v = 'token'; else if (h.startsWith('#/wallet')) v = 'wallet';
+  if (h.startsWith('#/create')) v = 'create'; else if (h.startsWith('#/token/')) v = 'token'; else if (h.startsWith('#/portfolio') || h.startsWith('#/wallet')) v = 'portfolio';
+  const changed = route.v !== v || route.h !== h; route.v = v; route.h = h;
   Object.entries(views).forEach(([k, el]) => el.classList.toggle('hidden', k !== v));
-  ['explore', 'create', 'wallet'].forEach((k) => $('nav-' + k).classList.toggle('on', k === v));
-  window.scrollTo(0, 0);
-  if (v === 'create') fillConfigs();
-  if (v === 'wallet') { refreshWallet(); renderMine(); }
+  ['explore', 'create', 'portfolio'].forEach((k) => $('nav-' + k).classList.toggle('on', k === v));
+  if (changed) window.scrollTo(0, 0);
+  if (v === 'create') booted.then(fillConfigs);
+  if (v === 'portfolio') { if (!account) { $('w-kv').innerHTML = '<div>Status</div><div>Not connected</div>'; } else renderPortfolio().catch(() => {}); }
   if (v === 'token') { const a = h.split('/')[2]; if (/^0x[0-9a-fA-F]{40}$/.test(a)) openToken(a).catch((e) => { const rl = /429|HTTP request failed|timeout/i.test(e.message || ''); $('t-name').textContent = rl ? 'Network busy' : 'Not an Ammora V4 curve'; $('t-desc').innerHTML = rl ? 'The public GIWA RPC is rate limiting requests. <a href="#" onclick="location.reload();return false">Retry</a>' : esc(e.shortMessage || e.message); }); }
 }
 window.addEventListener('hashchange', route);
 const tick = async () => { try { $('blk').textContent = '#' + (await pub.getBlockNumber()).toLocaleString('en-US'); } catch {} };
-tick(); setInterval(tick, 10_000);
-await boot(); route();
+tick(); setInterval(tick, 15_000);
+booted = boot(); route();
 </script>
 </body>
 </html>
