@@ -156,6 +156,17 @@ td.r,th.r{text-align:right}
 .sres .nm{flex:1;min-width:0}.sres .nm div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sres .nm small{color:var(--muted);font:11px var(--mono)}
 .sres .empty{padding:14px;text-align:center;font-size:13px}
+.tophead{display:flex;align-items:baseline;gap:10px;margin:22px 0 10px}
+.tophead h3{margin:0;font-size:16px}
+.top3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tcard{position:relative;background:linear-gradient(135deg,rgba(55,226,180,.10),rgba(124,108,255,.10)),var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 16px 14px;cursor:pointer;transition:.15s;display:flex;flex-direction:column;gap:12px;min-width:0}
+.tcard:hover{transform:translateY(-2px);border-color:var(--accent)}
+.tcard .rank{position:absolute;top:12px;right:14px;font:700 26px var(--mono);color:var(--muted);opacity:.45}
+.tcard .av{width:52px;height:52px;border-radius:14px}
+.tcard .mc{font:600 22px var(--mono);letter-spacing:-.02em}
+.tcard .mc small{font-size:12px;color:var(--muted);font-weight:500;margin-left:4px}
+.tcard.ph{cursor:default;min-height:150px;align-items:center;justify-content:center;color:var(--muted);font-size:13px}
+@media (max-width:900px){.top3{grid-template-columns:1fr}}
 @media (max-width:900px){.two{grid-template-columns:1fr}.tstats{grid-template-columns:repeat(3,1fr)}nav{display:none}.hero h1{font-size:26px}}
 @media (max-width:700px){.gsearch{display:none}}
 @media (max-width:520px){.gsearch kbd{display:none}.chip.net{display:none}.tstats{grid-template-columns:1fr 1fr}.topbar .hide-sm{display:none}}
@@ -200,6 +211,8 @@ td.r,th.r{text-align:right}
       <div class="stat"><div>WETH on curves</div><b id="st-raised">–</b></div>
       <div class="stat"><div>Creators</div><b id="st-creators">–</b></div>
     </div>
+    <div class="tophead"><h3>Top market cap</h3><span class="note" style="margin:0">Top 3 by market cap in WETH (curve price × total supply)</span></div>
+    <div class="top3" id="top3"><div class="tcard ph">Loading…</div><div class="tcard ph">Loading…</div><div class="tcard ph">Loading…</div></div>
     <div class="toolbar">
       <input id="q" placeholder="Search name, symbol or address…" />
       <div class="seg" id="filter">
@@ -508,12 +521,13 @@ async function hydrate(list = LAUNCHES.filter((l) => !l._st || !l._ti)) {
     const calls = part.flatMap((l) => [
       { address: l.token, abi: erc, functionName: 'name' }, { address: l.token, abi: erc, functionName: 'symbol' }, { address: l.token, abi: erc, functionName: 'decimals' },
       { address: l.curve, abi: poolAbi, functionName: 'status' }, { address: l.curve, abi: poolAbi, functionName: 'quoteReserve' }, { address: l.curve, abi: poolAbi, functionName: 'migrationQuoteThreshold' },
-      { address: l.curve, abi: poolAbi, functionName: 'sqrtPrice' },
+      { address: l.curve, abi: poolAbi, functionName: 'sqrtPrice' }, { address: l.token, abi: erc, functionName: 'totalSupply' },
     ]);
     try {
       const r = await pub.multicall({ contracts: calls, allowFailure: true });
       part.forEach((l, k) => {
-        const [n, sy, d, st, qr, th, sp] = r.slice(k * 7, k * 7 + 7).map((x) => x.status === 'success' ? x.result : null);
+        const [n, sy, d, st, qr, th, sp, ts] = r.slice(k * 8, k * 8 + 8).map((x) => x.status === 'success' ? x.result : null);
+        if (ts != null) l._supply = ts;
         if (n != null && sy != null) { l._ti = { name: n, symbol: sy, decimals: Number(d ?? 18) }; TOKEN.set(l.token, Promise.resolve(l._ti)); }
         if (st != null) l._st = { status: Number(st), quoteReserve: qr ?? 0n, migrationQuoteThreshold: th ?? 0n, sqrtPrice: sp ?? 0n };
       });
@@ -555,7 +569,24 @@ function renderStats() {
   $('st-raised').textContent = fmt(known.filter((l) => l._st.status === 1).reduce((a, l) => a + l._st.quoteReserve, 0n), 18, 4);
   $('st-creators').textContent = new Set(LAUNCHES.map((l) => l.creator)).size;
 }
-let renderT; const soon = () => { clearTimeout(renderT); renderT = setTimeout(() => { renderGrid(); renderStats(); if (!$('gs-res').classList.contains('hidden')) gsRender(); }, 120); };
+const mcapOf = (l) => (l._st && l._ti && l._supply != null && l._st.sqrtPrice) ? spotPrice(l._st.sqrtPrice, l._ti.decimals) * Number(V.formatUnits(l._supply, l._ti.decimals)) : null;
+function renderTop3() {
+  const box = $('top3');
+  const ranked = LAUNCHES.map((l) => [mcapOf(l), l]).filter(([m]) => m != null && isFinite(m)).sort((a, b) => b[0] - a[0]).slice(0, 3);
+  if (!ranked.length) return;
+  box.innerHTML = '';
+  ranked.forEach(([m, l], i) => {
+    const st = l._st; const [lbl, cls] = STATUS[st.status]; const pct = progress(st); const d = l._ti.decimals;
+    const el = document.createElement('div'); el.className = 'tcard'; el.onclick = () => location.hash = '#/token/' + l.curve;
+    el.innerHTML = `<span class="rank">#${i + 1}</span>
+      <div class="tk"><div class="av"></div><div style="min-width:0"><div class="n" style="font-size:16px">${esc(l._ti.name)}</div><div class="s">$${esc(l._ti.symbol)} · <span class="badge ${cls}">${lbl}</span></div></div></div>
+      <div><div class="row"><span>Market cap</span><span>Price</span></div><div class="row" style="color:var(--text)"><span class="mc">${fnum(m)}<small>WETH</small></span><span class="mono">${fnum(spotPrice(st.sqrtPrice, d))}</span></div></div>
+      <div><div class="prog"><i style="width:${pct}%"></i></div><div class="row" style="margin-top:6px"><span>Curve progress</span><span>${pct.toFixed(1)}%</span></div></div>`;
+    avatar(el.querySelector('.av'), l.meta, l._ti.symbol); box.appendChild(el);
+  });
+  for (let i = ranked.length; i < 3; i++) box.insertAdjacentHTML('beforeend', '<div class="tcard ph">Launch a token to take this spot</div>');
+}
+let renderT; const soon = () => { clearTimeout(renderT); renderT = setTimeout(() => { renderGrid(); renderStats(); renderTop3(); if (!$('gs-res').classList.contains('hidden')) gsRender(); }, 120); };
 let booted;
 async function boot() {
   try { await loadLaunches(); renderGrid(); renderStats(); await hydrate(); }
@@ -1052,7 +1083,7 @@ const KO = {
   'A fee vault is shared across launches, so the same balance can appear on several of your tokens. Claim once.': '수수료 볼트는 여러 런치가 함께 사용하므로 같은 잔액이 여러 토큰에 표시될 수 있습니다. 한 번만 청구하세요.',
   'Wallet': '지갑', 'Not connected': '연결되지 않음', 'Wrap ETH → WETH': 'ETH → WETH 래핑', 'Wrap': '래핑', 'Unwrap WETH → ETH': 'WETH → ETH 언래핑', 'Unwrap': '언래핑',
   'Need gas? Use the': '가스가 필요하면', 'GIWA faucet': 'GIWA 파우셋', 'or the': '또는', 'GIWA bridge': 'GIWA 브리지',
-  'Network busy': '네트워크 혼잡', 'Not an Ammora V4 curve': 'Ammora V4 커브가 아닙니다',
+  'Network busy': '네트워크 혼잡', 'Top market cap': '시가총액 상위', 'Top 3 by market cap in WETH (curve price × total supply)': 'WETH 기준 시가총액 상위 3개 (커브 가격 × 총 공급량)', 'Market cap': '시가총액', 'Price': '가격', 'Launch a token to take this spot': '토큰을 런치해 이 자리를 차지하세요', 'Not an Ammora V4 curve': 'Ammora V4 커브가 아닙니다',
   'Aromma is an independent community launchpad on GIWA Sepolia testnet (chain 91342), not operated by Ammora Labs. Do not use real funds. Contracts, quotes and transaction plans come from': 'Aromma는 GIWA 세폴리아 테스트넷(체인 91342)의 독립 커뮤니티 런치패드이며 Ammora Labs가 운영하지 않습니다. 실제 자금을 사용하지 마세요. 컨트랙트, 견적, 트랜잭션 계획은 다음에서 제공됩니다:',
   '. \n  Launch history, trades and holders are read from the GIWA explorer.': '. 런치 기록, 거래, 보유자 정보는 GIWA 익스플로러에서 읽어옵니다.',
   'Launch history, trades and holders are read from the GIWA explorer.': '런치 기록, 거래, 보유자 정보는 GIWA 익스플로러에서 읽어옵니다.', 'Source code': '소스 코드',
