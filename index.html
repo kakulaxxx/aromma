@@ -272,7 +272,8 @@ const wethAbi = V.parseAbi(['function deposit() payable', 'function withdraw(uin
 
 // small concurrency limiter so the public RPC is not flooded
 const limit = (n) => { let active = 0; const q = []; const next = () => { if (active >= n || !q.length) return; active++; const { f, res, rej } = q.shift(); Promise.race([f(), new Promise((_, r) => setTimeout(() => r(new Error('RPC timeout')), 25_000))]).then(res, rej).finally(() => { active--; next(); }); }; return (f) => new Promise((res, rej) => { q.push({ f, res, rej }); next(); }); };
-const rpcQ = limit(4);
+const rpcQ = limit(6);
+const direct = (f) => f(); // detail page reads skip the background queue
 
 // ---------- wallet ----------
 let wallet = null, account = null;
@@ -370,9 +371,9 @@ async function loadLaunches() {
     return { token: V.getAddress(args.token), curve: V.getAddress(args.curve), creator: V.getAddress(args.creator), configId: args.configId, metadataURI: args.metadataURI, meta: parseMeta(args.metadataURI), block: BigInt(l.blockNumber), tx: l.transactionHash };
   }).sort((a, b) => (b.block > a.block ? 1 : -1));
 }
-async function tokenInfo(addr) {
+async function tokenInfo(addr, urgent = false) {
   if (TOKEN.has(addr)) return TOKEN.get(addr);
-  const p = rpcQ(async () => {
+  const p = (urgent ? direct : rpcQ)(async () => {
     const [name, symbol, decimals] = await Promise.all(['name', 'symbol', 'decimals'].map((f) => pub.readContract({ address: addr, abi: V.erc20Abi, functionName: f })));
     return { name, symbol, decimals: Number(decimals) };
   });
@@ -380,7 +381,7 @@ async function tokenInfo(addr) {
 }
 async function curveState(curve, fresh = false) {
   if (!fresh && STATE.has(curve)) return STATE.get(curve);
-  const p = rpcQ(async () => { const c = new S.AmmoraV4LaunchCurveClient(pub, curve, CORE); return c.getStateAtBlock(await pub.getBlockNumber()); });
+  const p = (fresh ? direct : rpcQ)(async () => { const c = new S.AmmoraV4LaunchCurveClient(pub, curve, CORE); return c.getStateAtBlock(await pub.getBlockNumber()); });
   STATE.set(curve, p); p.catch(() => STATE.delete(curve)); return p;
 }
 const progress = (st) => {
@@ -508,12 +509,13 @@ $('tr-amt').oninput = () => { clearTimeout(quoteT); quoteT = setTimeout(requestQ
 
 async function openToken(curve) {
   curve = V.getAddress(curve);
+  if (cur?.launch.curve !== curve) { cur = null; $('t-name').textContent = 'Loading…'; $('t-sym').textContent = ''; $('t-desc').textContent = ''; $('t-kv').innerHTML = '<div>Reading curve state</div><div>…</div>'; $('t-badge').textContent = '…'; $('t-bar').style.width = '0'; $('t-pct').textContent = '–'; }
   $('tr-log').innerHTML = ''; $('tr-amt').value = ''; $('tr-quote').innerHTML = '<div class="row"><span>Enter an amount to get a quote</span></div>';
   let launch = LAUNCHES.find((l) => l.curve === curve);
   const st = await curveState(curve, true);
   const token = V.getAddress(st.baseToken);
   if (!launch) launch = { token, curve, creator: st.creator, configId: st.configId, meta: {}, metadataURI: '' };
-  const ti = await tokenInfo(token);
+  const ti = await tokenInfo(token, true);
   // Bind the curve to the reviewed factory and fee policy before trading.
   const bound = await pub.readContract({ address: L.factory, abi: S.ammoraLaunchFactoryV4Abi, functionName: 'tokenForCurve', args: [curve] });
   const verified = bound.toLowerCase() === token.toLowerCase() && st.feePolicy.toLowerCase() === L.feePolicy.toLowerCase() && st.feePolicyVersion === S.AMMORA_FEE_POLICY_VERSION;
@@ -526,8 +528,8 @@ async function openToken(curve) {
   const pct = progress(st); $('t-pct').textContent = pct.toFixed(2) + '%'; $('t-bar').style.width = pct + '%';
   $('t-kv').innerHTML = `<div>Token</div><div>${addrLink(token)}</div><div>Bonding curve</div><div>${addrLink(curve)}</div>
     <div>Creator</div><div>${addrLink(st.creator)}</div><div>Config</div><div>#${st.configId}</div>
-    <div>WETH raised</div><div>${fmt(st.quoteReserve, 18)} / ${fmt(st.migrationQuoteThreshold, 18)}</div>
-    <div>Tokens left on curve</div><div>${fmt(st.baseReserve, ti.decimals, 2)}</div>
+    ${st.status >= 2 ? `<div>Graduation target</div><div>${fmt(st.migrationQuoteThreshold, 18)} WETH · reached</div>` : `<div>WETH raised</div><div>${fmt(st.quoteReserve, 18)} / ${fmt(st.migrationQuoteThreshold, 18)}</div>
+    <div>Tokens left on curve</div><div>${fmt(st.baseReserve, ti.decimals, 2)}</div>`}
     <div>Current fee</div><div>${(st.currentFeeBps / 100).toFixed(2)}%</div>
     ${st.status === 3 ? `<div>Graduated pool</div><div>${addrLink(st.canonicalPool)}</div>` : ''}
     <div>Factory binding</div><div>${verified ? '<span style="color:var(--ok)">Verified</span>' : '<span style="color:var(--danger)">Unverified</span>'}</div>
