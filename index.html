@@ -143,11 +143,12 @@ td.r,th.r{text-align:right}
 .meter{height:5px;background:var(--panel2);border-radius:99px;overflow:hidden;margin-top:6px}
 .meter i{display:block;height:100%;background:var(--accent)}
 @media (max-width:520px){.editor{grid-template-columns:1fr}.stage{margin:auto}}
-.gsearch{position:relative;flex:1;max-width:340px;margin-left:8px}
+.gsearch{position:relative;flex:1 1 240px;min-width:220px;max-width:360px;margin-left:8px}
+@media (max-width:1240px){.chip.net{display:none}}
 .gsearch input{padding:8px 34px 8px 34px;font-size:13px;background:var(--panel)}
 .gsearch .ic{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:14px}
 .gsearch kbd{position:absolute;right:9px;top:50%;transform:translateY(-50%);font:11px var(--mono);color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:0 5px}
-.sres{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.45);overflow:hidden;z-index:30;max-height:420px;overflow-y:auto}
+.sres{position:absolute;top:calc(100% + 6px);left:0;min-width:340px;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.45);overflow:hidden;z-index:30;max-height:420px;overflow-y:auto}
 .sres a{display:flex;align-items:center;gap:10px;padding:9px 12px;color:var(--text);border-bottom:1px solid var(--line)}
 .sres a:last-child{border-bottom:0}
 .sres a:hover,.sres a.act{background:var(--panel2);text-decoration:none}
@@ -1070,6 +1071,7 @@ const KO_RX = [
   [/^Config #(\d+) · Ammora reviewed template \(recommended\)(.*)$/, (m, n, r) => `설정 #${n} · Ammora 검토 템플릿 (추천)${r.replace(' · graduates at ', ' · 졸업 기준 ')}`],
   [/^Config #(\d+) · graduates at (.+)$/, '설정 #$1 · 졸업 기준 $2'],
   [/^\.\s+Launch history, trades and holders are read from the GIWA explorer\.$/, '. 런치 기록, 거래, 보유자 정보는 GIWA 익스플로러에서 읽어옵니다.'],
+  [/^On-chain logo: (\d+)×(\d+)px · ([\d.]+) KB · metadata (\d+)\/(\d+) bytes$/, '온체인 로고: $1×$2px · $3 KB · 메타데이터 $4/$5바이트'],
   [/^(.+) WETH raised$/, '$1 WETH 모금 시'], [/^(.+) WETH · reached$/, '$1 WETH · 도달'],
 ];
 let LANG = 'en';
