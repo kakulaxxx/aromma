@@ -167,6 +167,7 @@ td.r,th.r{text-align:right}
 .tcard .mc small{font-size:12px;color:var(--muted);font-weight:500;margin-left:4px}
 .tcard.ph{cursor:default;min-height:150px;align-items:center;justify-content:center;color:var(--muted);font-size:13px}
 @media (max-width:900px){.top3{grid-template-columns:1fr}}
+@media (max-width:520px){.cc3{grid-template-columns:1fr!important}}
 @media (max-width:900px){.two{grid-template-columns:1fr}.tstats{grid-template-columns:repeat(3,1fr)}nav{display:none}.hero h1{font-size:26px}}
 @media (max-width:700px){.gsearch{display:none}}
 @media (max-width:520px){.gsearch kbd{display:none}.chip.net{display:none}.tstats{grid-template-columns:1fr 1fr}.topbar .hide-sm{display:none}}
@@ -260,6 +261,18 @@ td.r,th.r{text-align:right}
         <input id="c-web" placeholder="https://…" />
         <label>Launch config</label>
         <select id="c-cfg"><option value="6">Config #6 · Ammora reviewed template (loading…)</option></select>
+        <details id="cc" style="margin-top:10px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 14px">
+          <summary style="cursor:pointer;font-weight:600;font-size:14px">Create your own launch config</summary>
+          <div class="note" style="margin-top:6px">Set your own graduation target, supply and starting market cap. Fee rates, LP locks and vesting are inherited from Ammora's reviewed Config #6. Your wallet becomes the config owner and receives the partner fee share and partner LP. One transaction; the config can then be reused for any number of tokens.</div>
+          <div class="cc3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+            <div><label>Graduates at (WETH)</label><input id="cc-thr" inputmode="decimal" value="0.1" /></div>
+            <div><label>Total supply (tokens)</label><input id="cc-sup" inputmode="numeric" value="1000000000" /></div>
+            <div><label>Start market cap (WETH)</label><input id="cc-mc" inputmode="decimal" value="0.02" /></div>
+          </div>
+          <div class="kv" id="cc-kv" style="margin-top:12px"></div>
+          <button class="btn full" id="cc-go" style="margin-top:12px">Create config</button>
+          <div class="log" id="cc-log"></div>
+        </details>
         <div class="preview">
           <div class="av" id="pv-av">?</div>
           <div><div style="font-weight:600" id="pv-name">Your token</div><div class="mono" style="color:var(--muted)" id="pv-sym">$SYMBOL</div></div>
@@ -330,7 +343,7 @@ td.r,th.r{text-align:right}
         <label id="tr-lbl">You pay</label>
         <input id="tr-amt" inputmode="decimal" placeholder="0.0" />
         <div class="quick" id="tr-quick"></div>
-        <label class="toggle" id="tr-eth-wrap"><input type="checkbox" id="tr-eth" checked /> Pay with ETH (auto-wraps to WETH)</label>
+        <label class="toggle" id="tr-eth-wrap"><input type="checkbox" id="tr-eth" checked /> <span id="tr-eth-lbl">Pay with ETH (auto-wraps to WETH)</span></label>
         <div class="row" style="margin-top:6px"><span id="tr-bal">Balance: –</span></div>
         <label>Max slippage</label>
         <div class="seg" id="slip"><button data-s="50">0.5%</button><button data-s="100" class="on">1%</button><button data-s="300">3%</button><button data-s="500">5%</button></div>
@@ -631,18 +644,95 @@ async function renderConfig() {
       <div>Registry</div><div>${addrLink(L.configRegistry)}</div>`;
   } catch (err) { $('cfg-kv').innerHTML = `<div>Status</div><div class="er">${esc(err.shortMessage || err.message)}</div>`; }
 }
-async function fillConfigs() {
-  const ids = [...new Set([DEFAULT_CONFIG, ...LAUNCHES.map((l) => l.configId)])].sort((a, b) => Number(a - b));
-  const sel = $('c-cfg'); const cur = sel.value; sel.innerHTML = '';
+// Platform configs created for Aromma (hard-coded) plus any created from this browser.
+const AROMMA_CONFIGS = [];
+const myConfigs = () => { try { return JSON.parse(localStorage.getItem('aromma.configs') || '[]').map(BigInt); } catch { return []; } };
+const saveMyConfig = (id) => { try { const a = new Set(myConfigs().map(String)); a.add(String(id)); localStorage.setItem('aromma.configs', JSON.stringify([...a])); } catch {} };
+async function fillConfigs(prefer) {
+  const own = [...new Set([...AROMMA_CONFIGS, ...myConfigs()].map(String))].map(BigInt);
+  const rest = [...new Set([DEFAULT_CONFIG, ...LAUNCHES.map((l) => l.configId)])].filter((x) => !own.includes(x)).sort((a, b) => Number(a - b));
+  const ids = [...own, ...rest];
+  const sel = $('c-cfg'); const cur = prefer != null ? String(prefer) : sel.value; sel.innerHTML = '';
   for (const id of ids) {
     const o = document.createElement('option'); o.value = String(id);
-    o.textContent = id === DEFAULT_CONFIG ? `Config #${id} · Ammora reviewed template (recommended)` : `Config #${id}`;
+    o.textContent = own.includes(id) ? `Config #${id} · Aromma` : id === DEFAULT_CONFIG ? `Config #${id} · Ammora reviewed template` : `Config #${id}`;
     sel.appendChild(o);
     loadConfig(id).then((e) => { if (!e.enabled) { o.disabled = true; o.textContent += ' · disabled'; } else o.textContent += ` · graduates at ${fmt(e.config.migrationQuoteThreshold, 18)} WETH`; }).catch(() => { o.disabled = true; });
   }
-  sel.value = ids.map(String).includes(cur) ? cur : String(DEFAULT_CONFIG);
+  sel.value = prefer != null ? String(prefer) : String(own[0] ?? (ids.map(String).includes(cur) ? cur : DEFAULT_CONFIG));
   renderConfig();
 }
+
+// ---------- create a launch config ----------
+// Mirrors the Ammora examples' deriveConfigFromTemplate: one bonding-curve segment from the
+// start price to the graduation target, a concentrated destination funded by the raised WETH,
+// and the remaining fields inherited from reviewed template #6.
+function deriveConfig(tpl, saleRaw, thrRaw, startSqrt, owner) {
+  const curve = S.buildSingleSegmentCurve(startSqrt, saleRaw, thrRaw); const seg = curve[0];
+  const range = { sqrtPriceX64: seg.upperSqrtPrice, sqrtMinPriceX64: seg.lowerSqrtPrice, sqrtMaxPriceX64: seg.upperSqrtPrice * 2n };
+  const fee = thrRaw * BigInt(tpl.migrationQuoteFeeBps) / 10_000n;
+  const dest = S.concentratedDepositQuote(range, { quoteAmount: thrRaw - fee });
+  const v = tpl.lockedBaseVesting; const locked = v.cliffUnlockAmount + v.amountPerPeriod * BigInt(v.numberOfPeriods);
+  const config = { ...tpl, startSqrtPrice: startSqrt, totalSupply: saleRaw + dest.baseAmount + locked, migrationQuoteThreshold: thrRaw, migrationBaseThreshold: dest.baseAmount,
+    postMigrationSqrtMinPrice: range.sqrtMinPriceX64, postMigrationSqrtMaxPrice: range.sqrtMaxPriceX64, postMigrationLiquidity: dest.liquidity,
+    partnerRecipient: owner, leftoverReceiver: owner, liquidityDistribution: { ...tpl.liquidityDistribution, partner: owner } };
+  S.assertAmmoraV4Config(config, curve);
+  return { config, curve, dest };
+}
+async function planConfig(owner) {
+  const thr = V.parseUnits(($('cc-thr').value || '0').trim(), 18);
+  const supTokens = BigInt(($('cc-sup').value || '0').replace(/[^0-9]/g, '') || '0');
+  const mc = Number($('cc-mc').value);
+  if (thr <= 0n) throw new Error('Graduation target must be above 0');
+  if (supTokens < 1000n || supTokens > 10n ** 15n) throw new Error('Total supply must be between 1,000 and 10^15 tokens');
+  if (!(mc > 0)) throw new Error('Start market cap must be above 0');
+  const tplSnap = await loadConfig(DEFAULT_CONFIG); const tpl = tplSnap.config; const dec = BigInt(tpl.tokenDecimals);
+  const totalRaw = supTokens * 10n ** dec;
+  const priceRaw = mc * 1e18 / Number(totalRaw); // quote raw per base raw
+  const startSqrt = BigInt(Math.round(Math.sqrt(priceRaw) * 2 ** 64));
+  // Binary-search the curve allocation so that curve + pool tokens add up to the chosen supply.
+  let lo = totalRaw / 1000n, hi = totalRaw, best = null;
+  for (let i = 0; i < 80 && lo <= hi; i++) {
+    const mid = (lo + hi) / 2n; let d = null;
+    try { d = deriveConfig(tpl, mid, thr, startSqrt, owner); } catch { lo = mid + 1n; continue; }
+    if (d.config.totalSupply > totalRaw) hi = mid - 1n; else { best = { ...d, sale: mid }; lo = mid + 1n; }
+  }
+  if (!best) throw new Error('No valid curve for these numbers. Lower the start market cap or raise the graduation target.');
+  const px = (sq) => { const x = Number(sq) / 2 ** 64; return x * x * 10 ** (Number(dec) - 18); };
+  const tokens = (r) => Number(r) / 10 ** Number(dec);
+  return { ...best, dec: Number(dec), thr, startPrice: px(startSqrt), endPrice: px(best.curve[0].upperSqrtPrice), totalTokens: tokens(best.config.totalSupply), saleTokens: tokens(best.sale), poolTokens: tokens(best.dest.baseAmount),
+    tx: { to: L.configRegistry, ...S.buildCreateAmmoraV4Config(best.config, best.curve, owner) } };
+}
+async function previewConfig() {
+  try {
+    const p = await planConfig(account ?? '0x000000000000000000000000000000000000dEaD');
+    $('cc-kv').innerHTML = `<div>Total supply</div><div>${Math.round(p.totalTokens).toLocaleString('en-US')}</div>
+      <div>Sold on the curve</div><div>${Math.round(p.saleTokens).toLocaleString('en-US')} (${(p.saleTokens / p.totalTokens * 100).toFixed(1)}%)</div>
+      <div>Added to the pool at graduation</div><div>${Math.round(p.poolTokens).toLocaleString('en-US')} + ${fmt(p.thr, 18)} WETH</div>
+      <div>Start price / market cap</div><div>${fnum(p.startPrice)} / ${fnum(p.startPrice * p.totalTokens)} WETH</div>
+      <div>Price / market cap at graduation</div><div>${fnum(p.endPrice)} / ${fnum(p.endPrice * p.totalTokens)} WETH</div>
+      <div>Owner and partner recipient</div><div>${account ? addrLink(account) : 'your connected wallet'}</div>`;
+    $('cc-go').disabled = false;
+  } catch (e) { $('cc-kv').innerHTML = `<div>Preview</div><div class="er">${esc(e.shortMessage || e.message)}</div>`; $('cc-go').disabled = true; }
+}
+['cc-thr', 'cc-sup', 'cc-mc'].forEach((id) => $(id).addEventListener('input', () => { clearTimeout(previewConfig.t); previewConfig.t = setTimeout(previewConfig, 300); }));
+$('cc').addEventListener('toggle', () => { if ($('cc').open) previewConfig(); });
+$('cc-go').onclick = async () => {
+  const el = $('cc-log'); el.innerHTML = ''; const btn = $('cc-go');
+  try {
+    if (!wallet) await connect(); if (!wallet) return;
+    btn.disabled = true;
+    await S.verifyAmmoraV4CoreAtBlock(pub, CORE, await safeBlock());
+    const p = await planConfig(account);
+    await pub.estimateGas({ account, to: p.tx.to, data: p.tx.data }).catch((e) => { throw new Error('Simulation failed: ' + (e.shortMessage || e.message)); });
+    const receipt = await sendTx(p.tx, el, 'Create config');
+    const created = S.parseAmmoraV4ConfigCreatedReceipt(receipt, L.configRegistry);
+    saveMyConfig(created.configId);
+    log(el, `<span class="ok">Config #${created.configId} created. It is now selected for your launch.</span>`);
+    CONFIGS.delete(created.configId);
+    await sleep(3000); await fillConfigs(created.configId);
+  } catch (e) { logErr(el, e); } finally { btn.disabled = false; }
+};
 $('c-cfg').onchange = renderConfig;
 const updatePreview = () => { const sym = $('c-sym').value.trim().toUpperCase(); $('pv-name').textContent = $('c-name').value.trim() || 'Your token'; $('pv-sym').textContent = '$' + (sym || 'SYMBOL'); avatar($('pv-av'), { image: LOGO.data || $('c-img').value.trim() }, sym || '?'); };
 ['c-name', 'c-sym', 'c-img'].forEach((id) => $(id).addEventListener('input', updatePreview));
@@ -880,7 +970,7 @@ async function updateTradeUi() {
   if (!cur) return; const st = cur.state;
   $('tr-route').innerHTML = isPool() ? `Ammora pool ${addrLink(st.canonicalPool)}` : st.status === 1 ? 'Bonding curve' : 'Waiting for migration';
   $('tr-lbl').textContent = side === 'buy' ? (payWithEth() ? 'You pay (ETH)' : 'You pay (WETH)') : `You sell (${cur.ti.symbol})`;
-  $('tr-eth-wrap').classList.toggle('hidden', side !== 'buy');
+  $('tr-eth-lbl').textContent = side === 'buy' ? 'Pay with ETH (auto-wraps to WETH)' : 'Receive ETH (auto-unwraps WETH)';
   $('tr-quick').innerHTML = side === 'buy' ? ['0.0001', '0.001', '0.005', '0.01'].map((v) => `<button data-v="${v}">${v}</button>`).join('') : [25, 50, 75, 100].map((p) => `<button data-p="${p}">${p === 100 ? 'Max' : p + '%'}</button>`).join('');
   $('tr-migrate').classList.toggle('hidden', st.status !== 2);
   $('tr-note').textContent = isPool() ? 'This token graduated. Trades route through its Ammora concentrated-liquidity pool; LP is locked.' : st.status === 2 ? 'The curve is full. Anyone can run the migration to open the graduated pool.' : 'Prices move along the Ammora bonding curve. The final buy that fills the curve graduates the token.';
@@ -958,7 +1048,7 @@ async function requestQuote() {
   $('tr-quote').innerHTML = '<div class="row"><span>Quoting…</span></div>';
   try {
     const p = await plan(amt); cur.q = { amt, p };
-    const outSym = side === 'buy' ? cur.ti.symbol : 'WETH';
+    const outSym = side === 'buy' ? cur.ti.symbol : ($('tr-eth').checked ? 'ETH' : 'WETH');
     const imp = p.impact; const impCls = imp == null ? '' : imp > 15 ? 'er' : imp > 5 ? 'wn' : '';
     const wrapNeed = payWithEth() && cur.bals && cur.bals.weth < amt ? amt - cur.bals.weth : 0n;
     $('tr-quote').innerHTML = `<div class="row"><span>You receive (est.)</span><b style="color:var(--text)">${fmt(p.out, outDec())} ${esc(outSym)}</b></div>
@@ -984,7 +1074,15 @@ $('tr-go').onclick = async () => {
     if (p.route === 'pool') { for (const a of p.approvals) await ensureAllowance(a.token, a.spender, a.amount, el); }
     else await ensureAllowance(p.tokenIn, p.spender, amt, el);
     await pub.call({ account, to: p.tx.to, data: p.tx.data, value: p.tx.value ?? 0n }).catch((e) => { throw new Error('Simulation failed: ' + (e.shortMessage || e.message)); });
-    await sendTx(p.tx, el, side === 'buy' ? 'Buy' : 'Sell');
+    const unwrap = side === 'sell' && $('tr-eth').checked;
+    const wBefore = unwrap ? await bal(WETH) : 0n;
+    const rc = await sendTx(p.tx, el, side === 'buy' ? 'Buy' : 'Sell');
+    if (unwrap) {
+      // Sells pay out WETH; unwrap exactly what this sale produced so the user ends up with ETH.
+      const wAfter = await withRetry(() => pub.readContract({ address: WETH, abi: erc, functionName: 'balanceOf', args: [account], blockNumber: rc.blockNumber }), 5);
+      const got = wAfter - wBefore;
+      if (got > 0n) await sendTx({ to: WETH, data: V.encodeFunctionData({ abi: wethAbi, functionName: 'withdraw', args: [got] }) }, el, `Unwrap ${fmt(got, 18)} WETH to ETH`);
+    }
     $('tr-amt').value = ''; cur.q = null;
     await openToken(cur.launch.curve);
   } catch (e) { logErr(el, e); } finally { updateTradeButton(); }
@@ -1094,7 +1192,8 @@ const KO = {
   'A fee vault is shared across launches, so the same balance can appear on several of your tokens. Claim once.': '수수료 볼트는 여러 런치가 함께 사용하므로 같은 잔액이 여러 토큰에 표시될 수 있습니다. 한 번만 청구하세요.',
   'Wallet': '지갑', 'Not connected': '연결되지 않음', 'Wrap ETH → WETH': 'ETH → WETH 래핑', 'Wrap': '래핑', 'Unwrap WETH → ETH': 'WETH → ETH 언래핑', 'Unwrap': '언래핑',
   'Need gas? Use the': '가스가 필요하면', 'GIWA faucet': 'GIWA 파우셋', 'or the': '또는', 'GIWA bridge': 'GIWA 브리지',
-  'Network busy': '네트워크 혼잡', 'The public GIWA RPC is slow or still syncing this token.': '공개 GIWA RPC가 느리거나 아직 이 토큰을 동기화하는 중입니다.', 'Retry': '다시 시도', 'Top tokens': '상위 토큰', 'Top 3 by WETH raised on the bonding curve': '본딩 커브 WETH 모금액 기준 상위 3개', 'Market cap': '시가총액', 'Price': '가격', 'Launch a token to take this spot': '토큰을 런치해 이 자리를 차지하세요', 'Not an Ammora V4 curve': 'Ammora V4 커브가 아닙니다',
+  'Network busy': '네트워크 혼잡', 'Receive ETH (auto-unwraps WETH)': 'ETH로 받기 (WETH 자동 언래핑)', 'Create your own launch config': '나만의 런치 설정 만들기', 'Graduates at (WETH)': '졸업 기준 (WETH)', 'Total supply (tokens)': '총 공급량 (토큰)', 'Start market cap (WETH)': '시작 시가총액 (WETH)', 'Create config': '설정 생성', 'Sold on the curve': '커브 판매량', 'Added to the pool at graduation': '졸업 시 풀에 추가', 'Start price / market cap': '시작 가격 / 시가총액', 'Price / market cap at graduation': '졸업 시 가격 / 시가총액', 'Owner and partner recipient': '소유자 및 파트너 수령인', 'your connected wallet': '연결된 지갑', 'Preview': '미리보기',
+  "Set your own graduation target, supply and starting market cap. Fee rates, LP locks and vesting are inherited from Ammora's reviewed Config #6. Your wallet becomes the config owner and receives the partner fee share and partner LP. One transaction; the config can then be reused for any number of tokens.": '졸업 기준, 공급량, 시작 시가총액을 직접 정하세요. 수수료율, LP 잠금, 베스팅은 Ammora가 검토한 설정 #6을 따릅니다. 내 지갑이 설정 소유자가 되어 파트너 수수료와 파트너 LP를 받습니다. 트랜잭션 한 번으로 만들고, 이후 여러 토큰에 재사용할 수 있습니다.', 'The public GIWA RPC is slow or still syncing this token.': '공개 GIWA RPC가 느리거나 아직 이 토큰을 동기화하는 중입니다.', 'Retry': '다시 시도', 'Top tokens': '상위 토큰', 'Top 3 by WETH raised on the bonding curve': '본딩 커브 WETH 모금액 기준 상위 3개', 'Market cap': '시가총액', 'Price': '가격', 'Launch a token to take this spot': '토큰을 런치해 이 자리를 차지하세요', 'Not an Ammora V4 curve': 'Ammora V4 커브가 아닙니다',
   'Aromma is an independent community launchpad on GIWA Sepolia testnet (chain 91342), not operated by Ammora Labs. Do not use real funds. Contracts, quotes and transaction plans come from': 'Aromma는 GIWA 세폴리아 테스트넷(체인 91342)의 독립 커뮤니티 런치패드이며 Ammora Labs가 운영하지 않습니다. 실제 자금을 사용하지 마세요. 컨트랙트, 견적, 트랜잭션 계획은 다음에서 제공됩니다:',
   '. \n  Launch history, trades and holders are read from the GIWA explorer.': '. 런치 기록, 거래, 보유자 정보는 GIWA 익스플로러에서 읽어옵니다.',
   'Launch history, trades and holders are read from the GIWA explorer.': '런치 기록, 거래, 보유자 정보는 GIWA 익스플로러에서 읽어옵니다.', 'Source code': '소스 코드',
@@ -1115,6 +1214,9 @@ const KO_RX = [
   [/^\.\s+Launch history, trades and holders are read from the GIWA explorer\.$/, '. 런치 기록, 거래, 보유자 정보는 GIWA 익스플로러에서 읽어옵니다.'],
   [/^On-chain logo: (\d+)×(\d+)px · ([\d.]+) KB · metadata (\d+)\/(\d+) bytes$/, '온체인 로고: $1×$2px · $3 KB · 메타데이터 $4/$5바이트'],
   [/^Syncing with the GIWA RPC… \(retry (\d+)\)$/, 'GIWA RPC와 동기화 중… (재시도 $1)'],
+  [/^Config #(\d+) · Aromma(.*)$/, (m, n, r) => `설정 #${n} · Aromma${r.replace(' · graduates at ', ' · 졸업 기준 ')}`],
+  [/^Config #(\d+) · Ammora reviewed template(.*)$/, (m, n, r) => `설정 #${n} · Ammora 검토 템플릿${r.replace(' · graduates at ', ' · 졸업 기준 ')}`],
+  [/^Config #(\d+) created\. It is now selected for your launch\.$/, '설정 #$1 생성 완료. 이번 런치에 선택되었습니다.'],
   [/^(.+) WETH raised$/, '$1 WETH 모금 시'], [/^(.+) WETH · reached$/, '$1 WETH · 도달'],
 ];
 let LANG = 'en';
