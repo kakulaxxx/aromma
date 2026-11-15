@@ -267,11 +267,11 @@ const chain = V.defineChain({
   id: CHAIN_ID, name: 'GIWA Sepolia', nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: { default: { http: [RPC] } }, blockExplorers: { default: { name: 'GIWA Explorer', url: EXPLORER } },
 });
-const pub = V.createPublicClient({ chain, transport: V.http(RPC, { retryCount: 2, batch: true }) });
+const pub = V.createPublicClient({ chain, transport: V.http(RPC, { retryCount: 2, timeout: 20_000 }) });
 const wethAbi = V.parseAbi(['function deposit() payable', 'function withdraw(uint256)']);
 
 // small concurrency limiter so the public RPC is not flooded
-const limit = (n) => { let active = 0; const q = []; const next = () => { if (active >= n || !q.length) return; active++; const { f, res, rej } = q.shift(); f().then(res, rej).finally(() => { active--; next(); }); }; return (f) => new Promise((res, rej) => { q.push({ f, res, rej }); next(); }); };
+const limit = (n) => { let active = 0; const q = []; const next = () => { if (active >= n || !q.length) return; active++; const { f, res, rej } = q.shift(); Promise.race([f(), new Promise((_, r) => setTimeout(() => r(new Error('RPC timeout')), 25_000))]).then(res, rej).finally(() => { active--; next(); }); }; return (f) => new Promise((res, rej) => { q.push({ f, res, rej }); next(); }); };
 const rpcQ = limit(4);
 
 // ---------- wallet ----------
@@ -376,7 +376,7 @@ async function tokenInfo(addr) {
     const [name, symbol, decimals] = await Promise.all(['name', 'symbol', 'decimals'].map((f) => pub.readContract({ address: addr, abi: V.erc20Abi, functionName: f })));
     return { name, symbol, decimals: Number(decimals) };
   });
-  TOKEN.set(addr, p); return p;
+  TOKEN.set(addr, p); p.catch(() => TOKEN.delete(addr)); return p;
 }
 async function curveState(curve, fresh = false) {
   if (!fresh && STATE.has(curve)) return STATE.get(curve);
