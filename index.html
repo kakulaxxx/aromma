@@ -12,8 +12,18 @@
 :root{
   --bg:#0b0d12; --panel:#12151d; --panel2:#181c26; --line:#252a37; --text:#e8ebf2; --muted:#8b93a7;
   --accent:#37e2b4; --accent2:#7c6cff; --danger:#ff6b6b; --warn:#ffc65c; --ok:#37e2b4;
-  --radius:14px; --mono:'JetBrains Mono',ui-monospace,monospace;
+  --radius:14px; --mono:'JetBrains Mono',ui-monospace,monospace; --hdr:rgba(11,13,18,.88);
 }
+:root[data-theme="light"]{
+  --bg:#f5f6f9; --panel:#ffffff; --panel2:#eef0f5; --line:#e0e3ea; --text:#141821; --muted:#5d6577;
+  --accent:#0c9f7a; --accent2:#6a5af9; --danger:#d93f3f; --warn:#b7791f; --ok:#0c9f7a; --hdr:rgba(245,246,249,.9);
+}
+:root[data-theme="light"] .card:hover{border-color:#c9cedb}
+:root[data-theme="light"] .btn{color:#fff}
+:root[data-theme="light"] .sres{box-shadow:0 12px 32px rgba(20,24,33,.15)}
+.hdr-ctl{display:flex;gap:6px;align-items:center}
+.hdr-ctl .seg button{padding:4px 8px;font-size:12px}
+#theme{padding:5px 9px;font-size:14px;line-height:1}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 Inter,system-ui,sans-serif}
 a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
@@ -22,7 +32,7 @@ button{font:inherit;cursor:pointer}
 .topbar{background:linear-gradient(90deg,rgba(55,226,180,.12),rgba(124,108,255,.12));border-bottom:1px solid var(--line);font-size:13px;color:var(--muted)}
 .topbar .wrap{display:flex;gap:16px;align-items:center;height:34px}
 .topbar a{color:var(--text)}
-header{position:sticky;top:0;z-index:10;background:rgba(11,13,18,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+header{position:sticky;top:0;z-index:10;background:var(--hdr);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .bar{display:flex;align-items:center;gap:16px;height:64px}
 .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;color:var(--text)}
 .logo:hover{text-decoration:none}
@@ -118,8 +128,36 @@ td.r,th.r{text-align:right}
 .ph{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin-top:10px;cursor:pointer;user-select:none}
 .toggle input{width:auto;margin:0}
+.drop{border:1.5px dashed var(--line);border-radius:12px;padding:16px;text-align:center;color:var(--muted);font-size:13px;cursor:pointer;transition:.15s;background:var(--bg)}
+.drop:hover,.drop.over{border-color:var(--accent);color:var(--text)}
+.drop b{color:var(--text)}
+.editor{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;margin-top:12px}
+.stage{position:relative;width:180px;height:180px;border-radius:14px;overflow:hidden;cursor:grab;touch-action:none;background:repeating-conic-gradient(#1c2130 0 25%,#151925 0 50%) 0 0/16px 16px;border:1px solid var(--line)}
+.stage:active{cursor:grabbing}
+.stage canvas{width:100%;height:100%;display:block}
+.stage .ring{position:absolute;inset:0;border-radius:50%;box-shadow:0 0 0 999px rgba(11,13,18,.55);pointer-events:none;outline:1px dashed rgba(255,255,255,.35);outline-offset:-1px}
+.ctrls label{margin:8px 0 4px}
+.ctrls input[type=range]{padding:0;accent-color:var(--accent)}
+.sizes{display:flex;gap:10px;align-items:flex-end;margin-top:10px}
+.sizes .av{border:1px solid var(--line)}
+.meter{height:5px;background:var(--panel2);border-radius:99px;overflow:hidden;margin-top:6px}
+.meter i{display:block;height:100%;background:var(--accent)}
+@media (max-width:520px){.editor{grid-template-columns:1fr}.stage{margin:auto}}
+.gsearch{position:relative;flex:1;max-width:340px;margin-left:8px}
+.gsearch input{padding:8px 34px 8px 34px;font-size:13px;background:var(--panel)}
+.gsearch .ic{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:14px}
+.gsearch kbd{position:absolute;right:9px;top:50%;transform:translateY(-50%);font:11px var(--mono);color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:0 5px}
+.sres{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.45);overflow:hidden;z-index:30;max-height:420px;overflow-y:auto}
+.sres a{display:flex;align-items:center;gap:10px;padding:9px 12px;color:var(--text);border-bottom:1px solid var(--line)}
+.sres a:last-child{border-bottom:0}
+.sres a:hover,.sres a.act{background:var(--panel2);text-decoration:none}
+.sres .av{width:30px;height:30px;border-radius:9px;font-size:11px}
+.sres .nm{flex:1;min-width:0}.sres .nm div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sres .nm small{color:var(--muted);font:11px var(--mono)}
+.sres .empty{padding:14px;text-align:center;font-size:13px}
 @media (max-width:900px){.two{grid-template-columns:1fr}.tstats{grid-template-columns:repeat(3,1fr)}nav{display:none}.hero h1{font-size:26px}}
-@media (max-width:520px){.chip.net{display:none}.tstats{grid-template-columns:1fr 1fr}.topbar .hide-sm{display:none}}
+@media (max-width:700px){.gsearch{display:none}}
+@media (max-width:520px){.gsearch kbd{display:none}.chip.net{display:none}.tstats{grid-template-columns:1fr 1fr}.topbar .hide-sm{display:none}}
 </style>
 </head>
 <body>
@@ -136,8 +174,10 @@ td.r,th.r{text-align:right}
       <button data-go="#/create" id="nav-create">Launch</button>
       <button data-go="#/portfolio" id="nav-portfolio">Portfolio</button>
     </nav>
+    <div class="gsearch" id="gs"><span class="ic">⌕</span><input id="gs-in" placeholder="Search tokens or paste an address" autocomplete="off" spellcheck="false" /><kbd>/</kbd><div class="sres hidden" id="gs-res"></div></div>
     <div class="sp"></div>
     <span class="chip net">Block <b id="blk">…</b></span>
+    <div class="hdr-ctl"><div class="seg" id="lang"><button data-l="en">EN</button><button data-l="ko">한국어</button></div><button class="icon-btn" id="theme" title="Light mode">☀</button></div>
     <button class="btn sm" id="connect">Connect wallet</button>
   </div>
 </header>
@@ -147,7 +187,7 @@ td.r,th.r{text-align:right}
   <section id="v-explore">
     <div class="hero">
       <div>
-        <h1>Launch a token on <span>GIWA</span> in one click.<br/>Trade it until it graduates.</h1>
+        <h1 id="hero-h1">Launch a token on <span>GIWA</span> in one click.<br/>Trade it until it graduates.</h1>
         <p>Every Aromma token starts on an Ammora bonding curve. When the curve fills, it graduates into a concentrated-liquidity pool with locked LP, and trading continues there. Built with the Ammora SDK.</p>
       </div>
       <button class="btn" data-go="#/create">+ Launch a token</button>
@@ -182,10 +222,26 @@ td.r,th.r{text-align:right}
         <input id="c-name" maxlength="32" placeholder="e.g. Saigon Coffee" />
         <label>Symbol</label>
         <input id="c-sym" maxlength="10" placeholder="e.g. CAPHE" />
-        <label>Image URL (optional)</label>
-        <input id="c-img" placeholder="https://… (png, jpg or svg)" />
+        <label>Logo (optional)</label>
+        <div class="drop" id="logo-drop"><b>Upload an image</b> · drag & drop, paste, or click<br/><span style="font-size:12px">PNG, JPG, WebP, GIF or SVG. It is trimmed, centered and squared automatically.</span></div>
+        <input type="file" id="logo-file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" class="hidden" />
+        <div class="editor hidden" id="logo-editor">
+          <div class="stage" id="logo-stage"><canvas id="logo-cv" width="360" height="360"></canvas><div class="ring"></div></div>
+          <div class="ctrls">
+            <label>Zoom</label><input type="range" id="logo-zoom" min="40" max="300" value="100" />
+            <label>Background</label>
+            <div class="seg" id="logo-bg"><button data-bg="auto" class="on">Auto</button><button data-bg="none">Transparent</button><button data-bg="#ffffff">White</button><button data-bg="#0b0d12">Dark</button></div>
+            <div class="actions" style="margin-top:10px"><button class="icon-btn" id="logo-fit">Auto fit</button><button class="icon-btn" id="logo-fill">Fill</button><button class="icon-btn" id="logo-clear">Remove</button></div>
+            <div class="sizes"><div class="av" id="logo-p48" style="width:48px;height:48px"></div><div class="av" id="logo-p32" style="width:32px;height:32px;border-radius:9px"></div><div class="av" id="logo-p24" style="width:24px;height:24px;border-radius:7px"></div></div>
+            <div class="note" id="logo-info" style="margin-top:8px"></div>
+            <div class="meter"><i id="logo-meter" style="width:0"></i></div>
+          </div>
+        </div>
+        <div class="note">Drag the image to reposition. The logo is compressed and stored on-chain inside the token metadata (Ammora allows 2,048 bytes), so it needs no external hosting.</div>
+        <label>…or image URL</label>
+        <input id="c-img" placeholder="https://… (used only when no logo is uploaded)" />
         <label>Description (optional)</label>
-        <textarea id="c-desc" maxlength="240" placeholder="What is this token about?"></textarea>
+        <textarea id="c-desc" maxlength="160" placeholder="What is this token about?"></textarea>
         <label>Website or X link (optional)</label>
         <input id="c-web" placeholder="https://…" />
         <label>Launch config</label>
@@ -402,17 +458,22 @@ async function wrapIfNeeded(amount, el) {
 function parseMeta(uri) {
   try {
     if (uri?.startsWith('data:application/json;base64,')) return JSON.parse(decodeURIComponent(escape(atob(uri.slice(29)))));
-    if (uri?.startsWith('data:application/json,')) return JSON.parse(decodeURIComponent(uri.slice(22)));
+    if (uri?.startsWith('data:application/json;utf8,')) return JSON.parse(uri.slice(27));
+    if (uri?.startsWith('data:application/json,')) { const b = uri.slice(22); try { return JSON.parse(decodeURIComponent(b)); } catch { return JSON.parse(b); } }
   } catch {}
   return {};
 }
+// Raw UTF-8 JSON keeps an embedded base64 logo from being encoded twice.
+const META_LIMIT = 2048;
 function makeMeta(o) {
-  const m = { name: o.name, symbol: o.symbol, description: o.description || undefined, image: o.image || undefined, website: o.website || undefined, launchedWith: 'Aromma (Ammora SDK)' };
-  return 'data:application/json;base64,' + btoa(unescape(encodeURIComponent(JSON.stringify(m))));
+  const m = { name: o.name, symbol: o.symbol, description: o.description || undefined, website: o.website || undefined, image: o.image || undefined, app: 'Aromma' };
+  return 'data:application/json;utf8,' + JSON.stringify(m);
 }
+const utf8len = (s) => new TextEncoder().encode(s).length;
 const safeUrl = (u) => /^https:\/\//i.test(u || '') ? u : null;
+const safeImg = (u) => safeUrl(u) || (/^data:image\/(webp|png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(u || '') ? u : null);
 function avatar(el, meta, sym) {
-  const img = safeUrl(meta?.image);
+  const img = safeImg(meta?.image);
   const hue = [...(sym || '?')].reduce((a, c) => a + c.charCodeAt(0) * 37, 0) % 360;
   el.style.background = `linear-gradient(135deg,hsl(${hue} 70% 45%),hsl(${(hue + 60) % 360} 70% 40%))`;
   el.innerHTML = img ? `<img src="${esc(img)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">` : esc((sym || '?').slice(0, 2).toUpperCase());
@@ -493,7 +554,7 @@ function renderStats() {
   $('st-raised').textContent = fmt(known.filter((l) => l._st.status === 1).reduce((a, l) => a + l._st.quoteReserve, 0n), 18, 4);
   $('st-creators').textContent = new Set(LAUNCHES.map((l) => l.creator)).size;
 }
-let renderT; const soon = () => { clearTimeout(renderT); renderT = setTimeout(() => { renderGrid(); renderStats(); }, 120); };
+let renderT; const soon = () => { clearTimeout(renderT); renderT = setTimeout(() => { renderGrid(); renderStats(); if (!$('gs-res').classList.contains('hidden')) gsRender(); }, 120); };
 let booted;
 async function boot() {
   try { await loadLaunches(); renderGrid(); renderStats(); await hydrate(); }
@@ -540,8 +601,9 @@ async function fillConfigs() {
   renderConfig();
 }
 $('c-cfg').onchange = renderConfig;
-const updatePreview = () => { const sym = $('c-sym').value.trim().toUpperCase(); $('pv-name').textContent = $('c-name').value.trim() || 'Your token'; $('pv-sym').textContent = '$' + (sym || 'SYMBOL'); avatar($('pv-av'), { image: $('c-img').value.trim() }, sym || '?'); };
+const updatePreview = () => { const sym = $('c-sym').value.trim().toUpperCase(); $('pv-name').textContent = $('c-name').value.trim() || 'Your token'; $('pv-sym').textContent = '$' + (sym || 'SYMBOL'); avatar($('pv-av'), { image: LOGO.data || $('c-img').value.trim() }, sym || '?'); };
 ['c-name', 'c-sym', 'c-img'].forEach((id) => $(id).addEventListener('input', updatePreview));
+['c-name', 'c-sym', 'c-desc', 'c-web'].forEach((id) => $(id).addEventListener('input', () => { clearTimeout(LOGO.t); LOGO.t = setTimeout(encodeLogo, 300); }));
 $('c-sym').addEventListener('input', (e) => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); });
 $('c-go').onclick = async () => {
   const el = $('c-log'); el.innerHTML = ''; const btn = $('c-go');
@@ -550,7 +612,7 @@ $('c-go').onclick = async () => {
     const name = $('c-name').value.trim(), symbol = $('c-sym').value.trim(), image = $('c-img').value.trim(), description = $('c-desc').value.trim(), website = $('c-web').value.trim();
     if (name.length < 2) throw new Error('Name must be at least 2 characters');
     if (symbol.length < 2) throw new Error('Symbol must be at least 2 characters');
-    if (image && !safeUrl(image)) throw new Error('Image URL must start with https://');
+    if (image && !LOGO.data && !safeUrl(image)) throw new Error('Image URL must start with https://');
     if (website && !safeUrl(website)) throw new Error('Website must start with https://');
     btn.disabled = true;
     const configId = BigInt($('c-cfg').value);
@@ -559,7 +621,8 @@ $('c-go').onclick = async () => {
     await S.verifyAmmoraV4CoreAtBlock(pub, CORE, block);
     const entry = await S.getAmmoraV4ConfigAtBlock(pub, L.configRegistry, configId, block);
     if (!entry.enabled) throw new Error(`Config #${configId} is disabled`);
-    const uri = makeMeta({ name, symbol, description, image, website });
+    const uri = makeMeta({ name, symbol, description, image: LOGO.data || image, website });
+    if (utf8len(uri) > META_LIMIT) throw new Error(`Metadata is ${utf8len(uri)} bytes; the limit is ${META_LIMIT}. Shorten the description or remove the logo.`);
     const tx = S.buildCreateAmmoraV4Launch({ name, symbol, metadataURI: uri, creatorMetadataURI: uri, tokenDecimals: entry.config.tokenDecimals }, configId, entry.config.poolCreationFee);
     const receipt = await sendTx({ to: L.factory, ...tx }, el, 'Create launch');
     const created = S.parseAmmoraV4LaunchCreatedReceipt(receipt, L.factory);
@@ -571,6 +634,110 @@ $('c-go').onclick = async () => {
     setTimeout(() => location.hash = '#/token/' + nl.curve, 1200);
   } catch (e) { logErr(el, e); } finally { btn.disabled = false; }
 };
+
+// ---------- logo editor ----------
+// Loads an image, trims a uniform border, centers the subject in a square with padding,
+// lets the user zoom/drag, then compresses to the smallest WebP/PNG that fits the
+// remaining metadata budget so the logo can live on-chain.
+const LOGO = { img: null, bgAuto: null, bg: 'auto', zoom: 1, x: 0, y: 0, box: null, data: null, t: 0 };
+const cv = $('logo-cv'), cx = cv.getContext('2d');
+$('logo-drop').onclick = () => $('logo-file').click();
+$('logo-file').onchange = (e) => e.target.files[0] && loadLogo(e.target.files[0]);
+['dragenter', 'dragover'].forEach((t) => $('logo-drop').addEventListener(t, (e) => { e.preventDefault(); $('logo-drop').classList.add('over'); }));
+['dragleave', 'drop'].forEach((t) => $('logo-drop').addEventListener(t, (e) => { e.preventDefault(); $('logo-drop').classList.remove('over'); }));
+$('logo-drop').addEventListener('drop', (e) => { const f = e.dataTransfer.files[0]; if (f) loadLogo(f); });
+window.addEventListener('paste', (e) => { if (route.v !== 'create') return; const f = [...(e.clipboardData?.files || [])].find((x) => x.type.startsWith('image/')); if (f) loadLogo(f); });
+
+function loadLogo(file) {
+  if (!file.type.startsWith('image/')) return toast('Please choose an image file');
+  if (file.size > 15 * 1024 * 1024) return toast('Image is larger than 15 MB');
+  const url = URL.createObjectURL(file); const img = new Image();
+  img.onload = () => {
+    // Rasterize once at a bounded size (SVGs may have no intrinsic size).
+    const w0 = img.naturalWidth || 512, h0 = img.naturalHeight || 512, k = Math.min(1, 1024 / Math.max(w0, h0));
+    const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w0 * k)); c.height = Math.max(1, Math.round(h0 * k));
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+    LOGO.img = c; analyze(); autoFit();
+    $('logo-editor').classList.remove('hidden'); $('logo-drop').innerHTML = '<b>Replace image</b> · drag & drop, paste, or click';
+  };
+  img.onerror = () => { URL.revokeObjectURL(url); toast('Could not read this image'); };
+  img.src = url;
+}
+// Detect background from the four corners, then the bounding box of everything else.
+function analyze() {
+  const c = LOGO.img, w = c.width, h = c.height, d = c.getContext('2d').getImageData(0, 0, w, h).data;
+  const px = (x, y) => { const i = (y * w + x) * 4; return [d[i], d[i + 1], d[i + 2], d[i + 3]]; };
+  const corners = [px(0, 0), px(w - 1, 0), px(0, h - 1), px(w - 1, h - 1)];
+  const transparent = corners.filter((p) => p[3] < 20).length >= 3;
+  const avg = [0, 1, 2].map((k) => Math.round(corners.reduce((a, p) => a + p[k], 0) / 4));
+  const spread = Math.max(...corners.map((p) => Math.abs(p[0] - avg[0]) + Math.abs(p[1] - avg[1]) + Math.abs(p[2] - avg[2])));
+  const uniform = transparent || spread < 60;
+  LOGO.bgAuto = transparent ? 'none' : uniform ? `rgb(${avg})` : 'none';
+  let x0 = w, y0 = h, x1 = -1, y1 = -1;
+  if (uniform) {
+    for (let y = 0; y < h; y += 1) for (let x = 0; x < w; x += 1) {
+      const i = (y * w + x) * 4; const a = d[i + 3];
+      const diff = transparent ? a > 24 : a > 24 && Math.abs(d[i] - avg[0]) + Math.abs(d[i + 1] - avg[1]) + Math.abs(d[i + 2] - avg[2]) > 48;
+      if (diff) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+    }
+  }
+  LOGO.box = x1 >= 0 ? { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 } : { x: 0, y: 0, w, h };
+}
+// Fit: whole subject visible with 10% padding. Fill: square cover crop of the subject.
+function autoFit(mode = 'fit') {
+  const b = LOGO.box, S = cv.width, inner = S * (mode === 'fit' ? 0.8 : 1);
+  LOGO.base = mode === 'fit' ? inner / Math.max(b.w, b.h) : inner / Math.min(b.w, b.h);
+  LOGO.zoom = 1; $('logo-zoom').value = 100;
+  LOGO.x = S / 2 - (b.x + b.w / 2) * LOGO.base; LOGO.y = S / 2 - (b.y + b.h / 2) * LOGO.base;
+  drawLogo();
+}
+function paint(ctx, size) {
+  const k = size / cv.width, sc = LOGO.base * LOGO.zoom * k, S = cv.width;
+  const bg = LOGO.bg === 'auto' ? LOGO.bgAuto : LOGO.bg;
+  ctx.clearRect(0, 0, size, size);
+  if (bg && bg !== 'none') { ctx.fillStyle = bg; ctx.fillRect(0, 0, size, size); }
+  // zoom around the canvas center
+  const cxp = S / 2, cyp = S / 2, ox = cxp + (LOGO.x - cxp) * LOGO.zoom, oy = cyp + (LOGO.y - cyp) * LOGO.zoom;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(LOGO.img, ox * k, oy * k, LOGO.img.width * sc, LOGO.img.height * sc);
+}
+function drawLogo() { if (!LOGO.img) return; paint(cx, cv.width); clearTimeout(LOGO.t); LOGO.t = setTimeout(encodeLogo, 150); }
+// Smallest encoding that fits what the metadata has left after name/description/website.
+function encodeLogo() {
+  if (!LOGO.img) { LOGO.data = null; return; }
+  const base = makeMeta({ name: $('c-name').value.trim() || 'Token', symbol: $('c-sym').value.trim() || 'TKN', description: $('c-desc').value.trim(), website: $('c-web').value.trim(), image: '' });
+  const budget = META_LIMIT - utf8len(base) - 12;
+  const out = document.createElement('canvas'), o = out.getContext('2d');
+  const alpha = (LOGO.bg === 'auto' ? LOGO.bgAuto : LOGO.bg) === 'none';
+  let best = null;
+  outer: for (const size of [128, 112, 96, 80, 72, 64, 56, 48, 40, 32]) {
+    out.width = out.height = size; paint(o, size);
+    for (const q of [0.85, 0.7, 0.55, 0.4, 0.3, 0.2]) {
+      let u = out.toDataURL('image/webp', q);
+      if (!u.startsWith('data:image/webp')) u = alpha ? out.toDataURL('image/png') : out.toDataURL('image/jpeg', q);
+      if (u.length <= budget) { best = { u, size, q }; break outer; }
+    }
+  }
+  LOGO.data = best?.u || null;
+  const used = best ? best.u.length : 0;
+  $('logo-meter').style.width = Math.min(100, (utf8len(base) + used) / META_LIMIT * 100) + '%';
+  $('logo-info').innerHTML = best ? `On-chain logo: ${best.size}×${best.size}px · ${(used / 1024).toFixed(2)} KB · metadata ${utf8len(base) + used}/${META_LIMIT} bytes`
+    : `<span class="er">Not enough room for the logo (${Math.max(0, budget)} bytes left). Shorten the description or website.</span>`;
+  for (const id of ['logo-p48', 'logo-p32', 'logo-p24']) avatar($(id), { image: LOGO.data }, $('c-sym').value || '?');
+  updatePreview();
+}
+$('logo-zoom').oninput = (e) => { LOGO.zoom = e.target.value / 100; drawLogo(); };
+$('logo-fit').onclick = () => autoFit('fit');
+$('logo-fill').onclick = () => autoFit('fill');
+$('logo-clear').onclick = () => { LOGO.img = null; LOGO.data = null; $('logo-editor').classList.add('hidden'); $('logo-file').value = ''; $('logo-drop').innerHTML = '<b>Upload an image</b> · drag & drop, paste, or click'; updatePreview(); };
+$('logo-bg').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; LOGO.bg = b.dataset.bg; [...$('logo-bg').children].forEach((x) => x.classList.toggle('on', x === b)); drawLogo(); };
+{ // drag to pan
+  let drag = null; const st = $('logo-stage');
+  st.addEventListener('pointerdown', (e) => { if (!LOGO.img) return; st.setPointerCapture(e.pointerId); drag = { x: e.clientX, y: e.clientY, lx: LOGO.x, ly: LOGO.y }; });
+  st.addEventListener('pointermove', (e) => { if (!drag) return; const r = cv.width / st.clientWidth / LOGO.zoom; LOGO.x = drag.lx + (e.clientX - drag.x) * r; LOGO.y = drag.ly + (e.clientY - drag.y) * r; paint(cx, cv.width); });
+  st.addEventListener('pointerup', () => { if (drag) { drag = null; drawLogo(); } });
+  st.addEventListener('wheel', (e) => { if (!LOGO.img) return; e.preventDefault(); const z = Math.min(300, Math.max(40, Number($('logo-zoom').value) - Math.sign(e.deltaY) * 8)); $('logo-zoom').value = z; LOGO.zoom = z / 100; drawLogo(); }, { passive: false });
+}
 
 // ---------- token page ----------
 let cur = null; // { launch, state, ti, verified, totalSupply, bal, q, model }
@@ -802,11 +969,11 @@ async function renderPortfolio() {
   try {
     const r = await pub.multicall({ contracts: LAUNCHES.map((l) => ({ address: l.token, abi: erc, functionName: 'balanceOf', args: [account] })), allowFailure: true });
     const held = LAUNCHES.map((l, i) => ({ l, v: r[i].status === 'success' ? r[i].result : 0n })).filter((x) => x.v > 0n);
-    $('p-hold').innerHTML = held.length ? `<table><tr><th>Token</th><th>Status</th><th class="r">Balance</th><th class="r">Value (WETH)</th></tr>${held.map(({ l, v }) => { const d = l._ti?.decimals ?? 9; const val = l._st ? spotPrice(l._st.sqrtPrice, d) * Number(V.formatUnits(v, d)) : null; return `<tr><td><a href="#/token/${l.curve}">${esc(l._ti?.symbol || short(l.token))}</a></td><td>${l._st ? STATUS[l._st.status][0] : ''}</td><td class="r">${fmt(v, d, 2)}</td><td class="r">${val == null ? '–' : fnum(val)}</td></tr>`; }).join('')}</table>` : '<div class="note">You do not hold any launchpad tokens yet. <a href="#/">Explore →</a></div>';
+    $('p-hold').innerHTML = held.length ? `<table><tr><th>Token</th><th>Status</th><th class="r">Balance</th><th class="r">Value (WETH)</th></tr>${held.map(({ l, v }) => { const d = l._ti?.decimals ?? 9; const val = l._st ? spotPrice(l._st.sqrtPrice, d) * Number(V.formatUnits(v, d)) : null; return `<tr><td><a href="#/token/${l.curve}">${esc(l._ti?.symbol || short(l.token))}</a></td><td>${l._st ? STATUS[l._st.status][0] : ''}</td><td class="r">${fmt(v, d, 2)}</td><td class="r">${val == null ? '–' : fnum(val)}</td></tr>`; }).join('')}</table>` : '<div class="note"><span>You do not hold any launchpad tokens yet.</span> <a href="#/">Explore →</a></div>';
   } catch (e) { $('p-hold').innerHTML = `<div class="note">Could not load holdings (${esc(e.message)})</div>`; }
   // Creator fees: read each launch's fee vault, then claimable(WETH) and claimable(token).
   const mine = LAUNCHES.filter((l) => l.creator === account);
-  if (!mine.length) { $('p-mine').innerHTML = 'No launches from this wallet yet. <a href="#/create">Launch one →</a>'; return; }
+  if (!mine.length) { $('p-mine').innerHTML = '<span>No launches from this wallet yet.</span> <a href="#/create">Launch one →</a>'; return; }
   $('p-mine').innerHTML = '<div class="note">Reading fee vaults…</div>';
   try {
     const ctx = await pub.multicall({ contracts: mine.map((l) => ({ address: l.curve, abi: poolAbi, functionName: 'launchContext' })), allowFailure: true });
@@ -831,6 +998,164 @@ $('p-mine').onclick = async (e) => {
 };
 $('w-wrap-go').onclick = async () => { const el = $('w-log'); try { const v = V.parseEther($('w-wrap').value || '0'); if (v <= 0n) throw new Error('Enter an amount'); await sendTx({ to: WETH, data: V.encodeFunctionData({ abi: wethAbi, functionName: 'deposit' }), value: v }, el, 'Wrap'); renderPortfolio(); } catch (e) { logErr(el, e); } };
 $('w-unwrap-go').onclick = async () => { const el = $('w-log'); try { const v = V.parseEther($('w-unwrap').value || '0'); if (v <= 0n) throw new Error('Enter an amount'); await sendTx({ to: WETH, data: V.encodeFunctionData({ abi: wethAbi, functionName: 'withdraw', args: [v] }) }, el, 'Unwrap'); renderPortfolio(); } catch (e) { logErr(el, e); } };
+
+// ---------- language (English / 한국어) and theme ----------
+// Text nodes are translated in place by exact match (plus a few patterns for values
+// with numbers), and a MutationObserver covers content rendered later.
+const KO = {
+  'Explore': '탐색', 'Launch': '런치', 'Portfolio': '포트폴리오', 'Connect wallet': '지갑 연결', 'Block': '블록',
+  'GIWA Sepolia testnet': 'GIWA 세폴리아 테스트넷', '· Tokens have no real value': '· 토큰은 실제 가치가 없습니다',
+  'Get test ETH ↗': '테스트 ETH 받기 ↗', 'Bridge ETH ↗': 'ETH 브리지 ↗',
+  'Launch a token on': '단 한 번의 클릭으로', 'in one click.': '에서 토큰을 런치하세요.', 'Trade it until it graduates.': '졸업할 때까지 거래하세요.',
+  'Every Aromma token starts on an Ammora bonding curve. When the curve fills, it graduates into a concentrated-liquidity pool with locked LP, and trading continues there. Built with the Ammora SDK.': '모든 Aromma 토큰은 Ammora 본딩 커브에서 시작합니다. 커브가 채워지면 LP가 잠긴 집중 유동성 풀로 졸업하고, 이후 거래는 그 풀에서 이어집니다. Ammora SDK로 제작되었습니다.',
+  '+ Launch a token': '+ 토큰 런치', 'Launches': '런치 수', 'Live on curve': '커브 거래 중', 'Graduated': '졸업', 'WETH on curves': '커브 내 WETH', 'Creators': '생성자 수',
+  'New': '최신', 'Near graduation': '졸업 임박', 'Top raised': '모금액 순', 'Refresh': '새로고침',
+  'Loading launches from GIWA…': 'GIWA에서 런치 목록을 불러오는 중…', 'Loading…': '불러오는 중…', 'Curve progress': '커브 진행률',
+  'No launches match.': '일치하는 런치가 없습니다.', 'No launches yet. Be the first!': '아직 런치가 없습니다. 첫 번째가 되어 보세요!',
+  'Not started': '시작 전', 'Live': '거래 중', 'Graduating': '졸업 중',
+  'Launch a token': '토큰 런치', 'Creates a new ERC-20 and its bonding curve in one transaction through the Ammora V4 LaunchFactory.': 'Ammora V4 LaunchFactory를 통해 새 ERC-20 토큰과 본딩 커브를 한 번의 트랜잭션으로 생성합니다.',
+  'Token name': '토큰 이름', 'Symbol': '심볼', 'Logo (optional)': '로고 (선택)', 'Upload an image': '이미지 업로드', 'Replace image': '이미지 교체',
+  '· drag & drop, paste, or click': '· 드래그 앤 드롭, 붙여넣기 또는 클릭',
+  'PNG, JPG, WebP, GIF or SVG. It is trimmed, centered and squared automatically.': 'PNG, JPG, WebP, GIF, SVG 지원. 여백 제거, 가운데 정렬, 정사각형 변환이 자동으로 됩니다.',
+  'Zoom': '확대', 'Background': '배경', 'Auto': '자동', 'Transparent': '투명', 'White': '흰색', 'Dark': '어두운색', 'Auto fit': '자동 맞춤', 'Fill': '채우기', 'Remove': '삭제',
+  'Drag the image to reposition. The logo is compressed and stored on-chain inside the token metadata (Ammora allows 2,048 bytes), so it needs no external hosting.': '이미지를 드래그해 위치를 조정하세요. 로고는 압축되어 토큰 메타데이터 안에 온체인으로 저장되므로(Ammora 한도 2,048바이트) 외부 호스팅이 필요 없습니다.',
+  '…or image URL': '…또는 이미지 URL', 'Description (optional)': '설명 (선택)', 'Website or X link (optional)': '웹사이트 또는 X 링크 (선택)', 'Launch config': '런치 설정',
+  'Your token': '내 토큰', 'Launch token': '토큰 런치하기', 'Use your own name and artwork. Do not copy the name or logo of an existing project.': '직접 만든 이름과 이미지를 사용하세요. 기존 프로젝트의 이름이나 로고를 복사하지 마세요.',
+  'Config details': '설정 정보', 'Status': '상태', 'loading…': '불러오는 중…', 'Enabled': '활성', 'Disabled': '비활성',
+  'Total supply': '총 공급량', 'Token decimals': '토큰 소수점', 'Quote asset': '견적 자산', 'Graduates at': '졸업 기준', 'Trading fee': '거래 수수료',
+  'Creator share of fees': '생성자 수수료 몫', 'Creation fee': '생성 수수료', 'Curve segments': '커브 구간', 'Registry': '레지스트리',
+  'The config fixes supply, curve shape, fees and graduation rules for every token launched with it. Values are read live from the Ammora ConfigRegistry.': '설정은 해당 설정으로 런치되는 모든 토큰의 공급량, 커브 형태, 수수료, 졸업 규칙을 고정합니다. 값은 Ammora ConfigRegistry에서 실시간으로 읽어옵니다.',
+  'Token + curve created together': '토큰과 커브가 함께 생성됩니다', 'Trade': '거래', 'Buy and sell on the curve with ETH': 'ETH로 커브에서 매수·매도', 'The final buy reaches the graduation target': '마지막 매수가 졸업 목표에 도달합니다',
+  'Graduate': '졸업', 'Migrates to a pool with locked LP; creator earns fees': 'LP가 잠긴 풀로 이전되고 생성자는 수수료를 받습니다',
+  '← All launches': '← 전체 런치', 'Copy address': '주소 복사', 'Share on X': 'X에 공유', 'Explorer ↗': '익스플로러 ↗',
+  'Price (WETH)': '가격 (WETH)', 'Mcap (WETH)': '시가총액 (WETH)', 'Holders': '보유자', 'Trades': '거래 수', 'Raised (WETH)': '모금액 (WETH)', 'Graduation progress': '졸업 진행률',
+  'Price on the bonding curve': '본딩 커브 가격', 'Activity': '활동', 'Info': '정보', 'One trade so far': '현재까지 거래 1건', 'No trades yet': '아직 거래가 없습니다',
+  'Loading trades…': '거래 내역을 불러오는 중…', 'Loading holders…': '보유자를 불러오는 중…', 'No curve trades yet. Be the first buyer.': '아직 커브 거래가 없습니다. 첫 번째 매수자가 되어 보세요.', 'No holders indexed yet.': '아직 집계된 보유자가 없습니다.',
+  'Time': '시간', 'Type': '유형', 'Trader': '거래자', 'Address': '주소', 'Amount': '수량', 'Share': '비율',
+  'curve': '커브', 'pool': '풀', 'creator': '생성자', 'you': '나',
+  'Token': '토큰', 'Bonding curve': '본딩 커브', 'Creator': '생성자', 'Config': '설정', 'Graduation target': '졸업 목표', 'WETH raised': '모금된 WETH',
+  'Tokens left on curve': '커브 잔여 토큰', 'Curve fee': '커브 수수료', 'Graduated pool': '졸업 풀', 'Fee vault': '수수료 볼트', 'Factory binding': '팩토리 검증', 'Verified': '검증됨', 'Unverified': '미검증', 'Launch tx': '런치 트랜잭션',
+  'Buy': '매수', 'Sell': '매도', 'Route': '경로', 'You pay': '지불 금액', 'You pay (ETH)': '지불 금액 (ETH)', 'You pay (WETH)': '지불 금액 (WETH)', 'Max': '최대',
+  'Pay with ETH (auto-wraps to WETH)': 'ETH로 결제 (WETH로 자동 래핑)', 'Max slippage': '최대 슬리피지',
+  'Enter an amount to get a quote': '금액을 입력하면 견적이 표시됩니다', 'Quoting…': '견적 계산 중…', 'You receive (est.)': '예상 수령액', 'Minimum received': '최소 수령액',
+  'Price impact': '가격 영향', 'Fee': '수수료', 'Auto-wrap first': '먼저 자동 래핑', 'Waiting for migration': '마이그레이션 대기 중', 'Ammora pool': 'Ammora 풀',
+  'Trading paused': '거래 일시 중지', 'Unverified curve': '미검증 커브', 'Graduate: run migration': '졸업: 마이그레이션 실행', 'Balance: connect wallet': '잔액: 지갑을 연결하세요', 'Balance: –': '잔액: –',
+  'Prices move along the Ammora bonding curve. The final buy that fills the curve graduates the token.': '가격은 Ammora 본딩 커브를 따라 움직입니다. 커브를 채우는 마지막 매수가 토큰을 졸업시킵니다.',
+  'This token graduated. Trades route through its Ammora concentrated-liquidity pool; LP is locked.': '이 토큰은 졸업했습니다. 거래는 Ammora 집중 유동성 풀을 통해 이루어지며 LP는 잠겨 있습니다.',
+  'The curve is full. Anyone can run the migration to open the graduated pool.': '커브가 가득 찼습니다. 누구나 마이그레이션을 실행해 졸업 풀을 열 수 있습니다.',
+  'Tokens you hold': '보유 토큰', 'Connect a wallet to see your tokens.': '지갑을 연결하면 보유 토큰이 표시됩니다.', 'Your launches and creator fees': '내 런치와 생성자 수수료',
+  'Creators earn a share of trading fees on their tokens. Fees accrue in the Ammora FeeVault and can be claimed here at any time.': '생성자는 자신의 토큰 거래 수수료 일부를 받습니다. 수수료는 Ammora FeeVault에 쌓이며 여기에서 언제든 청구할 수 있습니다.',
+  'Connect a wallet to see tokens you created.': '지갑을 연결하면 내가 만든 토큰이 표시됩니다.', 'Reading fee vaults…': '수수료 볼트를 읽는 중…',
+  'Balance': '잔액', 'Value (WETH)': '가치 (WETH)', 'Fees (WETH)': '수수료 (WETH)', 'Fees (token)': '수수료 (토큰)', 'Claim': '청구',
+  'You do not hold any launchpad tokens yet.': '아직 보유한 런치패드 토큰이 없습니다.', 'Explore →': '탐색 →', 'No launches from this wallet yet.': '이 지갑으로 런치한 토큰이 아직 없습니다.', 'Launch one →': '런치하기 →',
+  'A fee vault is shared across launches, so the same balance can appear on several of your tokens. Claim once.': '수수료 볼트는 여러 런치가 함께 사용하므로 같은 잔액이 여러 토큰에 표시될 수 있습니다. 한 번만 청구하세요.',
+  'Wallet': '지갑', 'Not connected': '연결되지 않음', 'Wrap ETH → WETH': 'ETH → WETH 래핑', 'Wrap': '래핑', 'Unwrap WETH → ETH': 'WETH → ETH 언래핑', 'Unwrap': '언래핑',
+  'Need gas? Use the': '가스가 필요하면', 'GIWA faucet': 'GIWA 파우셋', 'or the': '또는', 'GIWA bridge': 'GIWA 브리지',
+  'Network busy': '네트워크 혼잡', 'Not an Ammora V4 curve': 'Ammora V4 커브가 아닙니다',
+  'Aromma is an independent community launchpad on GIWA Sepolia testnet (chain 91342), not operated by Ammora Labs. Do not use real funds. Contracts, quotes and transaction plans come from': 'Aromma는 GIWA 세폴리아 테스트넷(체인 91342)의 독립 커뮤니티 런치패드이며 Ammora Labs가 운영하지 않습니다. 실제 자금을 사용하지 마세요. 컨트랙트, 견적, 트랜잭션 계획은 다음에서 제공됩니다:',
+  '. \n  Launch history, trades and holders are read from the GIWA explorer.': '. 런치 기록, 거래, 보유자 정보는 GIWA 익스플로러에서 읽어옵니다.',
+  'Launch history, trades and holders are read from the GIWA explorer.': '런치 기록, 거래, 보유자 정보는 GIWA 익스플로러에서 읽어옵니다.', 'Source code': '소스 코드',
+  // placeholders
+  'Search tokens or paste an address': '토큰 검색 또는 주소 붙여넣기', 'Search name, symbol or address…': '이름, 심볼 또는 주소 검색…',
+  'e.g. Saigon Coffee': '예: Seoul Coffee', 'e.g. CAPHE': '예: COFFEE', 'What is this token about?': '어떤 토큰인가요?',
+  'https://… (used only when no logo is uploaded)': 'https://… (로고를 업로드하지 않은 경우에만 사용)',
+};
+const UNIT = { s: '초', m: '분', h: '시간', d: '일' };
+const KO_RX = [
+  [/^Buy (.+)$/, '$1 매수'], [/^Sell (.+)$/, '$1 매도'], [/^You sell \((.+)\)$/, '매도 수량 ($1)'],
+  [/^by (0x.+)$/, '생성자 $1'], [/^(\d+)([smhd]) ago$/, (m, n, u) => n + UNIT[u] + ' 전'],
+  [/^Balance: (.+)$/, '잔액: $1'], [/^Config #(\d+)$/, '설정 #$1'],
+  [/^over ([\d,]+) trades( · log scale)?$/, (m, n, l) => `${n}건 거래 기준${l ? ' · 로그 스케일' : ''}`],
+  [/^No tokens match “(.*)”$/, '“$1”와 일치하는 토큰이 없습니다'],
+  [/^Config #(\d+) · Ammora reviewed template \(recommended\)(.*)$/, (m, n, r) => `설정 #${n} · Ammora 검토 템플릿 (추천)${r.replace(' · graduates at ', ' · 졸업 기준 ')}`],
+  [/^Config #(\d+) · graduates at (.+)$/, '설정 #$1 · 졸업 기준 $2'],
+  [/^\.\s+Launch history, trades and holders are read from the GIWA explorer\.$/, '. 런치 기록, 거래, 보유자 정보는 GIWA 익스플로러에서 읽어옵니다.'],
+  [/^(.+) WETH raised$/, '$1 WETH 모금 시'], [/^(.+) WETH · reached$/, '$1 WETH · 도달'],
+];
+let LANG = 'en';
+const ORIG = new WeakMap();
+function trCore(en) {
+  if (KO[en]) return KO[en];
+  for (const [rx, rep] of KO_RX) if (rx.test(en)) return en.replace(rx, rep);
+  return null;
+}
+function trNode(n) {
+  const cur = n.nodeValue; let o = ORIG.get(n);
+  if (!o || (cur !== o.en && cur !== o.out)) { o = { en: cur, out: cur }; ORIG.set(n, o); }
+  const core = o.en.trim(); if (!core) return;
+  const t = LANG === 'ko' ? trCore(core) : null;
+  o.out = t ? o.en.replace(core, t) : o.en;
+  if (cur !== o.out) n.nodeValue = o.out;
+}
+function trPh(el) {
+  if (!el.dataset.phEn) el.dataset.phEn = el.getAttribute('placeholder');
+  const en = el.dataset.phEn; el.setAttribute('placeholder', LANG === 'ko' ? (KO[en] || en) : en);
+}
+function trTree(root) {
+  if (root.nodeType === 3) return trNode(root);
+  if (root.nodeType !== 1 || /SCRIPT|STYLE/.test(root.tagName)) return;
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: (n) => /SCRIPT|STYLE/.test(n.parentNode?.tagName) ? 2 : 1 });
+  for (let n = w.nextNode(); n; n = w.nextNode()) trNode(n);
+  (root.matches?.('[placeholder]') ? [root] : []).concat([...root.querySelectorAll('[placeholder]')]).forEach(trPh);
+}
+new MutationObserver((ms) => { for (const m of ms) { if (m.type === 'characterData') trNode(m.target); else m.addedNodes.forEach(trTree); } })
+  .observe(document.body, { subtree: true, childList: true, characterData: true });
+const store = { get: (k) => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch {} } };
+function setLang(l) {
+  LANG = l === 'ko' ? 'ko' : 'en'; document.documentElement.lang = LANG; store.set('aromma.lang', LANG);
+  [...$('lang').children].forEach((b) => b.classList.toggle('on', b.dataset.l === LANG));
+  const h = $('hero-h1'); h.dataset.en ??= h.innerHTML;
+  h.innerHTML = LANG === 'ko' ? '클릭 한 번으로 <span>GIWA</span>에서 토큰을 런치하세요.<br/>졸업할 때까지 거래하세요.' : h.dataset.en;
+  trTree(document.body);
+}
+function setTheme(t) {
+  document.documentElement.dataset.theme = t; store.set('aromma.theme', t);
+  $('theme').textContent = t === 'light' ? '☾' : '☀'; $('theme').title = t === 'light' ? 'Dark mode' : 'Light mode';
+}
+$('lang').onclick = (e) => { const b = e.target.closest('button'); if (b) setLang(b.dataset.l); };
+$('theme').onclick = () => setTheme(document.documentElement.dataset.theme === 'light' ? 'dark' : 'light');
+setTheme(store.get('aromma.theme') || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+setLang(store.get('aromma.lang') || (navigator.language || '').slice(0, 2));
+
+// ---------- global token search ----------
+// Matches name, symbol, token or curve address. Enter opens the highlighted result,
+// "/" focuses the box, and a pasted address of any launch opens it directly.
+let gsIdx = 0, gsItems = [];
+function gsMatches(q) {
+  q = q.trim().toLowerCase(); if (!q) return [];
+  const score = (l) => {
+    const sym = (l._ti?.symbol || l.meta.symbol || '').toLowerCase(), nm = (l._ti?.name || l.meta.name || '').toLowerCase();
+    if (l.token.toLowerCase() === q || l.curve.toLowerCase() === q) return 100;
+    if (sym === q) return 90; if (sym.startsWith(q)) return 70; if (nm.startsWith(q)) return 60;
+    if (sym.includes(q)) return 40; if (nm.includes(q)) return 30;
+    if (q.length >= 6 && (l.token.toLowerCase().includes(q) || l.curve.toLowerCase().includes(q))) return 20;
+    return 0;
+  };
+  return LAUNCHES.map((l) => [score(l), l]).filter(([v]) => v > 0).sort((a, b) => b[0] - a[0] || (b[1].block > a[1].block ? 1 : -1)).slice(0, 8).map(([, l]) => l);
+}
+function gsRender() {
+  const q = $('gs-in').value, box = $('gs-res');
+  if (!q.trim()) { box.classList.add('hidden'); return; }
+  gsItems = gsMatches(q); gsIdx = Math.min(gsIdx, Math.max(0, gsItems.length - 1));
+  const isAddr = /^0x[0-9a-fA-F]{40}$/.test(q.trim());
+  box.innerHTML = gsItems.length ? gsItems.map((l, i) => { const st = l._st; const [lbl, cls] = st ? STATUS[st.status] : ['…', 'b0']; return `<a href="#/token/${l.curve}" data-i="${i}" class="${i === gsIdx ? 'act' : ''}"><div class="av"></div><div class="nm"><div>${esc(l._ti?.name || l.meta.name || short(l.token))}</div><small>$${esc(l._ti?.symbol || l.meta.symbol || '')} · ${short(l.token)}</small></div><span class="badge ${cls}">${lbl}</span></a>`; }).join('')
+    : `<div class="empty">${isAddr ? 'Not an Aromma/Ammora launch. <a href="#/token/' + esc(q.trim()) + '">Try it as a curve address →</a>' : 'No tokens match “' + esc(q) + '”'}</div>`;
+  box.querySelectorAll('a[data-i]').forEach((a) => { const l = gsItems[a.dataset.i]; avatar(a.querySelector('.av'), l.meta, l._ti?.symbol || l.meta.symbol); });
+  box.classList.remove('hidden');
+}
+const gsClose = () => { $('gs-res').classList.add('hidden'); };
+const gsOpen = (l) => { location.hash = '#/token/' + l.curve; $('gs-in').value = ''; gsClose(); $('gs-in').blur(); };
+$('gs-in').addEventListener('input', () => { gsIdx = 0; gsRender(); });
+$('gs-in').addEventListener('focus', gsRender);
+$('gs-in').addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowDown') { e.preventDefault(); gsIdx = Math.min(gsIdx + 1, gsItems.length - 1); gsRender(); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); gsIdx = Math.max(gsIdx - 1, 0); gsRender(); }
+  else if (e.key === 'Enter') { e.preventDefault(); if (gsItems[gsIdx]) gsOpen(gsItems[gsIdx]); else if (/^0x[0-9a-fA-F]{40}$/.test(e.target.value.trim())) { location.hash = '#/token/' + e.target.value.trim(); gsClose(); } }
+  else if (e.key === 'Escape') { gsClose(); e.target.blur(); }
+});
+$('gs-res').addEventListener('click', (e) => { const a = e.target.closest('a[data-i]'); if (a) { e.preventDefault(); gsOpen(gsItems[a.dataset.i]); } else if (e.target.closest('a')) { $('gs-in').value = ''; gsClose(); } });
+document.addEventListener('click', (e) => { if (!e.target.closest('#gs')) gsClose(); });
+document.addEventListener('keydown', (e) => { if (e.key === '/' && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName)) { e.preventDefault(); $('gs-in').focus(); } });
 
 // ---------- router ----------
 document.querySelectorAll('[data-go]').forEach((b) => b.onclick = () => location.hash = b.dataset.go);
