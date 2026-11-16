@@ -1159,7 +1159,13 @@ $('tr-go').onclick = async () => {
     const p = await plan(amt);
     if (p.route === 'pool') { for (const a of p.approvals) await ensureAllowance(a.token, a.spender, a.amount, el); }
     else await ensureAllowance(p.tokenIn, p.spender, amt, el);
-    await pub.call({ account, to: p.tx.to, data: p.tx.data, value: p.tx.value ?? 0n }).catch((e) => { throw new Error('Simulation failed: ' + (e.shortMessage || e.message)); });
+    // The public RPC can lag a few blocks behind the wrap/approve we just confirmed, so retry the simulation before giving up.
+    let simErr;
+    for (let i = 0; i < 6; i++) {
+      try { await pub.call({ account, to: p.tx.to, data: p.tx.data, value: p.tx.value ?? 0n }); simErr = null; break; }
+      catch (e) { simErr = e; if (i === 0) log(el, 'Waiting for the network to catch up with your approval…'); await sleep(2500); }
+    }
+    if (simErr) throw new Error('Simulation failed: ' + (simErr.shortMessage || simErr.message) + '. Wait a few seconds and press Buy again; your wrap and approval are already done.');
     const unwrap = side === 'sell' && $('tr-eth').checked;
     const wBefore = unwrap ? await bal(WETH) : 0n;
     const rc = await sendTx(p.tx, el, side === 'buy' ? 'Buy' : 'Sell');
