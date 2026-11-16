@@ -992,7 +992,7 @@ async function updateTradeUi() {
   $('tr-lbl').textContent = side === 'buy' ? (payWithEth() ? 'You pay (ETH)' : 'You pay (WETH)') : `You sell (${cur.ti.symbol})`;
   $('tr-eth-lbl').textContent = side === 'buy' ? 'Pay with ETH (auto-wraps to WETH)' : 'Receive ETH (auto-unwraps WETH)';
   $('tr-quick').innerHTML = side === 'buy' ? ['0.0001', '0.001', '0.005', '0.01'].map((v) => `<button data-v="${v}">${v}</button>`).join('') : [25, 50, 75, 100].map((p) => `<button data-p="${p}">${p === 100 ? 'Max' : p + '%'}</button>`).join('');
-  $('tr-migrate').classList.toggle('hidden', st.status !== 2);
+  $('tr-migrate').classList.toggle('hidden', st.status !== 2 || st.configId === DEFAULT_CONFIG);
   if (st.configId === DEFAULT_CONFIG && st.status !== 3) { $('tr-note').innerHTML = `<span class="wn">${CANNOT_GRADUATE}</span>`; } else
   $('tr-note').textContent = isPool() ? 'This token graduated. Trades route through its Ammora concentrated-liquidity pool; LP is locked.' : st.status === 2 ? 'The curve is full. Anyone can run the migration to open the graduated pool.' : 'Prices move along the Ammora bonding curve. The final buy that fills the curve graduates the token.';
   updateTradeButton();
@@ -1125,7 +1125,7 @@ $('tr-go').onclick = async () => {
 const CANNOT_GRADUATE = 'This token cannot graduate: its launch config sells the entire supply on the curve, so no tokens are left to fund the pool (the contract answers MigrationNotReady). New Aromma launches use a config without this problem.';
 async function simulateMigrate(tx) {
   try { await pub.call({ account, to: tx.to, data: tx.data }); }
-  catch (e) { const d = JSON.stringify(e, (k, v) => typeof v === 'bigint' ? String(v) : v) + (e.message || ''); throw new Error(/824b6731|MigrationNotReady/.test(d) ? CANNOT_GRADUATE : 'Migration simulation failed: ' + (e.shortMessage || e.message)); }
+  catch (e) { const d = JSON.stringify(e, (k, v) => typeof v === 'bigint' ? String(v) : v) + (e.message || ''); throw new Error(/824b6731|MigrationNotReady/.test(d) || cur?.state.configId === DEFAULT_CONFIG ? CANNOT_GRADUATE : 'Migration simulation failed: ' + (e.shortMessage || e.message)); }
 }
 $('tr-migrate').onclick = async () => {
   const el = $('tr-log'); el.innerHTML = '';
