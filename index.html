@@ -66,7 +66,11 @@ nav button.on,nav button:hover{color:var(--text);background:var(--panel2)}
 .card:hover{border-color:#3a4256;transform:translateY(-2px)}
 .tk{display:flex;gap:12px;align-items:center;min-width:0}
 .av{width:44px;height:44px;border-radius:12px;flex:none;background:var(--panel2);display:grid;place-items:center;font-weight:700;overflow:hidden;color:#fff}
-.av img{width:100%;height:100%;object-fit:cover}
+.av img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.av{position:relative;overflow:visible}
+/* small marker on the logo of graduated tokens */
+.av.grad::after{content:'✓';position:absolute;right:-5px;bottom:-5px;width:17px;height:17px;border-radius:50%;background:var(--accent2);color:#fff;font:700 10px/17px Inter,sans-serif;text-align:center;box-shadow:0 0 0 2px var(--panel)}
+.sres .av.grad::after{width:13px;height:13px;font-size:8px;line-height:13px;right:-4px;bottom:-4px}
 .tk .n{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tk .s{color:var(--muted);font:12px var(--mono)}
 .badge{font-size:11px;font-weight:600;padding:3px 8px;border-radius:99px;border:1px solid;white-space:nowrap}
@@ -508,7 +512,8 @@ function makeMeta(o) {
 const utf8len = (s) => new TextEncoder().encode(s).length;
 const safeUrl = (u) => /^https:\/\//i.test(u || '') ? u : null;
 const safeImg = (u) => safeUrl(u) || (/^data:image\/(webp|png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(u || '') ? u : null);
-function avatar(el, meta, sym) {
+function avatar(el, meta, sym, grad = false) {
+  el.classList.toggle('grad', !!grad); el.title = grad ? 'Graduated' : '';
   const img = safeImg(meta?.image);
   const hue = [...(sym || '?')].reduce((a, c) => a + c.charCodeAt(0) * 37, 0) % 360;
   el.style.background = `linear-gradient(135deg,hsl(${hue} 70% 45%),hsl(${(hue + 60) % 360} 70% 40%))`;
@@ -580,7 +585,7 @@ function renderGrid() {
     el.innerHTML = `<div class="row" style="color:inherit"><div class="tk"><div class="av"></div><div style="min-width:0"><div class="n">${esc(name)}</div><div class="s">$${esc(sym)}</div></div></div><span class="badge ${cls}">${lbl}</span></div>
       <div><div class="row"><span>${st && st.status === 1 ? `${fmt(st.quoteReserve, 18, 6)} / ${fmt(st.migrationQuoteThreshold, 18, 6)} WETH` : 'Curve progress'}</span><span>${st ? pct.toFixed(1) + '%' : '–'}</span></div><div class="prog" style="margin-top:6px"><i style="width:${pct}%"></i></div></div>
       <div class="row"><span>by ${short(l.creator)}</span><span>${l.time ? ago(l.time) + ' ago' : 'Config #' + l.configId}</span></div>`;
-    avatar(el.querySelector('.av'), l.meta, sym); grid.appendChild(el);
+    avatar(el.querySelector('.av'), l.meta, sym, st && st.status >= 2); grid.appendChild(el);
   }
 }
 function renderStats() {
@@ -607,7 +612,7 @@ function renderTop3() {
       <div class="tk"><div class="av"></div><div style="min-width:0"><div class="n" style="font-size:16px">${esc(l._ti.name)}</div><div class="s">$${esc(l._ti.symbol)} · <span class="badge ${cls}">${lbl}</span></div></div></div>
       <div><div class="row"><span>WETH raised</span><span>Market cap</span></div><div class="row" style="color:var(--text)"><span class="mc">${fmt(raised(l), 18, 6)}<small>WETH</small></span><span class="mono">${m == null ? '–' : fnum(m)}</span></div></div>
       <div><div class="prog"><i style="width:${pct}%"></i></div><div class="row" style="margin-top:6px"><span>Curve progress</span><span>${pct.toFixed(1)}%</span></div></div>`;
-    avatar(el.querySelector('.av'), l.meta, l._ti.symbol); box.appendChild(el);
+    avatar(el.querySelector('.av'), l.meta, l._ti.symbol, st.status >= 2); box.appendChild(el);
   });
   for (let i = ranked.length; i < 3; i++) box.insertAdjacentHTML('beforeend', '<div class="tcard ph">Launch a token to take this spot</div>');
 }
@@ -910,7 +915,7 @@ async function openToken(curve) {
   cur = { ...keep, launch, state: st, ti, verified, totalSupply, q: null };
   launch._ti = ti; launch._st = { status: st.status, quoteReserve: st.quoteReserve, migrationQuoteThreshold: st.migrationQuoteThreshold, sqrtPrice: st.sqrtPrice };
   $('t-name').textContent = ti.name; $('t-sym').textContent = '$' + ti.symbol;
-  avatar($('t-av'), launch.meta, ti.symbol);
+  avatar($('t-av'), launch.meta, ti.symbol, st.status >= 2);
   $('t-desc').innerHTML = esc(launch.meta.description || '') + (safeUrl(launch.meta.website) ? ` <a href="${esc(launch.meta.website)}" target="_blank" rel="noopener nofollow">Website ↗</a>` : '');
   $('t-exp').href = `${EXPLORER}/token/${token}`;
   const [lbl, cls] = STATUS[st.status]; $('t-badge').className = 'badge ' + cls; $('t-badge').textContent = lbl;
@@ -1290,7 +1295,7 @@ function gsRender() {
   const isAddr = /^0x[0-9a-fA-F]{40}$/.test(q.trim());
   box.innerHTML = gsItems.length ? gsItems.map((l, i) => { const st = l._st; const [lbl, cls] = st ? STATUS[st.status] : ['…', 'b0']; return `<a href="#/token/${l.curve}" data-i="${i}" class="${i === gsIdx ? 'act' : ''}"><div class="av"></div><div class="nm"><div>${esc(l._ti?.name || l.meta.name || short(l.token))}</div><small>$${esc(l._ti?.symbol || l.meta.symbol || '')} · ${short(l.token)}</small></div><span class="badge ${cls}">${lbl}</span></a>`; }).join('')
     : `<div class="empty">${isAddr ? 'Not an Aromma/Ammora launch. <a href="#/token/' + esc(q.trim()) + '">Try it as a curve address →</a>' : 'No tokens match “' + esc(q) + '”'}</div>`;
-  box.querySelectorAll('a[data-i]').forEach((a) => { const l = gsItems[a.dataset.i]; avatar(a.querySelector('.av'), l.meta, l._ti?.symbol || l.meta.symbol); });
+  box.querySelectorAll('a[data-i]').forEach((a) => { const l = gsItems[a.dataset.i]; avatar(a.querySelector('.av'), l.meta, l._ti?.symbol || l.meta.symbol, l._st && l._st.status >= 2); });
   box.classList.remove('hidden');
 }
 const gsClose = () => { $('gs-res').classList.add('hidden'); };
