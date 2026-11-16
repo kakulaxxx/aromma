@@ -601,6 +601,13 @@ function makeMeta(o) {
 }
 const utf8len = (s) => new TextEncoder().encode(s).length;
 const safeUrl = (u) => /^https:\/\//i.test(u || '') ? u : null;
+// On-chain metadata is capped at 2048 bytes, so uploaded logos are tiny. Aromma's own sea-friends tokens
+// ship a sharp copy with the app; every other token shows the image stored in its metadata.
+const HIRES = ['SHARKY', 'JELLIE', 'OCTO', 'CLOWNY', 'NARWHAL', 'SQUIDDY', 'STINGY', 'STARRY'];
+const hiMeta = (meta, creator) => {
+  try { if (meta && creator && creator.toLowerCase() === '0xd57ab6c1f5618e03074c78f11f6ee2c726496bf1' && HIRES.includes(String(meta.symbol || '').toUpperCase()) && location.protocol === 'https:') return { ...meta, image: new URL('hi-' + String(meta.symbol).toUpperCase() + '.webp', location.origin + location.pathname).href }; } catch {}
+  return meta;
+};
 const safeImg = (u) => safeUrl(u) || (/^data:image\/(webp|png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(u || '') ? u : null);
 function avatar(el, meta, sym, grad = false) {
   el.classList.toggle('grad', !!grad); el.title = grad ? 'Graduated' : '';
@@ -628,7 +635,7 @@ async function loadLaunches() {
   catch { const head = await pub.getBlockNumber(); raw = await pub.getLogs({ address: L.factory, event: launchEvent, fromBlock: head - 9999n, toBlock: head }); }
   LAUNCHES = raw.map((l) => {
     const { args } = V.decodeEventLog({ abi: S.ammoraLaunchFactoryV4Abi, data: l.data, topics: l.topics });
-    return { token: V.getAddress(args.token), curve: V.getAddress(args.curve), creator: V.getAddress(args.creator), configId: args.configId, metadataURI: args.metadataURI, meta: parseMeta(args.metadataURI), block: BigInt(l.blockNumber), time: l.timeStamp ? Number(l.timeStamp) : null, tx: l.transactionHash };
+    return { token: V.getAddress(args.token), curve: V.getAddress(args.curve), creator: V.getAddress(args.creator), configId: args.configId, metadataURI: args.metadataURI, meta: hiMeta(parseMeta(args.metadataURI), args.creator), block: BigInt(l.blockNumber), time: l.timeStamp ? Number(l.timeStamp) : null, tx: l.transactionHash };
   }).sort((a, b) => (b.block > a.block ? 1 : -1));
 }
 // One Multicall3 round trip per chunk: token name/symbol/decimals + curve status/reserves.
@@ -909,7 +916,7 @@ $('c-go').onclick = async () => {
     const created = S.parseAmmoraV4LaunchCreatedReceipt(receipt, L.factory);
     if (created.configId !== configId || created.configHash !== entry.configHash) throw new Error('Receipt does not match the selected config');
     log(el, `<span class="ok">Token ${addrLink(created.token)} · Curve ${addrLink(created.curve)}</span>`);
-    const nl = { token: V.getAddress(created.token), curve: V.getAddress(created.curve), creator: account, configId, metadataURI: uri, meta: parseMeta(uri), block: receipt.blockNumber, time: Date.now() / 1000, tx: receipt.transactionHash };
+    const nl = { token: V.getAddress(created.token), curve: V.getAddress(created.curve), creator: account, configId, metadataURI: uri, meta: hiMeta(parseMeta(uri), account), block: receipt.blockNumber, time: Date.now() / 1000, tx: receipt.transactionHash };
     LAUNCHES.unshift(nl); hydrate([nl]);
     toast('Token launched! Opening its page…');
     setTimeout(() => location.hash = '#/token/' + nl.curve, 4000);
@@ -1002,7 +1009,7 @@ function encodeLogo() {
   LOGO.data = best?.u || null;
   const used = best ? best.u.length : 0;
   $('logo-meter').style.width = Math.min(100, (utf8len(base) + used) / META_LIMIT * 100) + '%';
-  $('logo-info').innerHTML = best ? `On-chain logo: ${best.size}×${best.size}px · ${(used / 1024).toFixed(2)} KB · metadata ${utf8len(base) + used}/${META_LIMIT} bytes`
+  $('logo-info').innerHTML = best ? `On-chain logo: ${best.size}×${best.size}px · ${(used / 1024).toFixed(2)} KB · metadata ${utf8len(base) + used}/${META_LIMIT} bytes<br/>The chain allows only 2 KB of metadata. For a sharper logo, press Remove and paste an https image link in the Image URL field.`
     : `<span class="er">Not enough room for the logo (${Math.max(0, budget)} bytes left). Shorten the description or website.</span>`;
   for (const id of ['logo-p48', 'logo-p32', 'logo-p24']) avatar($(id), { image: LOGO.data }, $('c-sym').value || '?');
   updatePreview();
