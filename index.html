@@ -194,6 +194,8 @@ td.r,th.r{text-align:right}
 @keyframes shine{0%,55%{left:-60%}100%{left:130%}}
 .tcard:not(.ph){padding-top:30px}
 .top3{margin-top:26px;margin-bottom:56px}
+.feebox{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:12px}
+.feebox b{font-size:20px}
 .allhead{display:flex;align-items:center;gap:14px;margin:0 0 4px}
 .allhead h3{margin:0;font-size:16px;white-space:nowrap}
 .allhead::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
@@ -1304,11 +1306,25 @@ async function renderPortfolio() {
     const withVault = mine.filter((l) => l._vault);
     const cl = await pub.multicall({ contracts: withVault.flatMap((l) => [{ address: l._vault, abi: S.feeVaultAbi, functionName: 'claimable', args: [WETH, account] }, { address: l._vault, abi: S.feeVaultAbi, functionName: 'claimable', args: [l.token, account] }]), allowFailure: true });
     withVault.forEach((l, i) => { l._fq = cl[i * 2].status === 'success' ? cl[i * 2].result : 0n; l._ft = cl[i * 2 + 1].status === 'success' ? cl[i * 2 + 1].result : 0n; });
-    $('p-mine').innerHTML = `<table><tr><th>Token</th><th>Status</th><th class="r">Fees (WETH)</th><th class="r">Fees (token)</th><th></th></tr>${mine.map((l) => `<tr><td><a href="#/token/${l.curve}">${esc(l._ti?.symbol || short(l.token))}</a></td><td>${l._st ? STATUS[l._st.status][0] : ''}</td><td class="r">${l._vault ? fmt(l._fq, 18) : '–'}</td><td class="r">${l._vault ? fmt(l._ft, l._ti?.decimals ?? 9, 2) : '–'}</td><td class="r">${l._vault && (l._fq > 0n || l._ft > 0n) ? `<button class="btn sm" data-claim="${l.curve}">Claim</button>` : ''}</td></tr>`).join('')}</table>
-      <div class="note">A fee vault is shared across launches, so the same balance can appear on several of your tokens. Claim once.</div>`;
+    // The WETH fee balance lives in a vault shared by all of this wallet's launches, so show it once per vault.
+    const vaults = [...new Map(withVault.map((l) => [l._vault, l._fq])).entries()];
+    const wethTotal = vaults.reduce((a, [, v]) => a + v, 0n);
+    $('p-mine').innerHTML = `<div class="feebox"><div><div class="note" style="margin:0">Claimable creator fees</div><b>${fmt(wethTotal, 18)} WETH</b></div>${vaults.filter(([, v]) => v > 0n).map(([a]) => `<button class="btn sm" data-claimw="${a}">Claim WETH</button>`).join('') || '<span class="note" style="margin:0">Nothing to claim yet</span>'}</div>
+      <table><tr><th>Token</th><th>Status</th><th class="r">Fees (token)</th><th></th></tr>${mine.map((l) => `<tr><td><a href="#/token/${l.curve}">${esc(l._ti?.symbol || short(l.token))}</a></td><td>${l._st ? STATUS[l._st.status][0] : ''}</td><td class="r">${l._vault ? fmt(l._ft, l._ti?.decimals ?? 9, 2) : '–'}</td><td class="r">${l._vault && l._ft > 0n ? `<button class="btn sm" data-claim="${l.curve}">Claim</button>` : ''}</td></tr>`).join('')}</table>`;
   } catch (e) { $('p-mine').innerHTML = `<div class="note">Could not read fee vaults (${esc(e.message)})</div>`; }
 }
 $('p-mine').onclick = async (e) => {
+  const bw = e.target.closest('[data-claimw]');
+  if (bw) {
+    const el = $('p-log'); el.innerHTML = ''; bw.disabled = true;
+    try {
+      const vault = bw.dataset.claimw;
+      const c = await pub.readContract({ address: vault, abi: S.feeVaultAbi, functionName: 'claimable', args: [WETH, account] });
+      if (c > 0n) await sendTx({ to: vault, data: V.encodeFunctionData({ abi: S.feeVaultAbi, functionName: 'claimFor', args: [WETH, account, account] }) }, el, 'Claim WETH fees');
+      renderPortfolio();
+    } catch (err) { logErr(el, err); bw.disabled = false; }
+    return;
+  }
   const b = e.target.closest('[data-claim]'); if (!b) return; const el = $('p-log'); el.innerHTML = ''; b.disabled = true;
   try {
     const l = LAUNCHES.find((x) => x.curve === b.dataset.claim);
