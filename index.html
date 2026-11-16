@@ -61,7 +61,7 @@ nav button.on,nav button:hover{color:var(--text);background:var(--panel2)}
 .seg{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px;flex-wrap:wrap}
 .seg button{background:none;border:0;color:var(--muted);padding:6px 12px;border-radius:8px;font-size:13px}
 .seg button.on{background:var(--panel2);color:var(--text)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;padding-bottom:40px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;padding-bottom:40px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;cursor:pointer;transition:.15s;display:flex;flex-direction:column;gap:12px}
 .card:hover{border-color:#3a4256;transform:translateY(-2px)}
 .tk{display:flex;gap:12px;align-items:center;min-width:0}
@@ -70,6 +70,9 @@ nav button.on,nav button:hover{color:var(--text);background:var(--panel2)}
 .av{position:relative;overflow:visible}
 /* small marker on the logo of graduated tokens */
 .av.grad::after{content:'✓';position:absolute;right:-5px;bottom:-5px;width:17px;height:17px;border-radius:50%;background:var(--accent2);color:#fff;font:700 10px/17px Inter,sans-serif;text-align:center;box-shadow:0 0 0 2px var(--panel)}
+.card .av,.tcard .av{width:88px;height:88px;border-radius:20px;font-size:30px}
+.card .av.grad::after,.tcard .av.grad::after{width:24px;height:24px;font-size:13px;line-height:24px;right:-6px;bottom:-6px}
+.card .n,.tcard .n{font-size:16px}
 .sres .av.grad::after{width:13px;height:13px;font-size:8px;line-height:13px;right:-4px;bottom:-4px}
 .tk .n{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tk .s{color:var(--muted);font:12px var(--mono)}
@@ -166,7 +169,6 @@ td.r,th.r{text-align:right}
 .tcard{position:relative;background:linear-gradient(135deg,rgba(55,226,180,.10),rgba(124,108,255,.10)),var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 16px 14px;cursor:pointer;transition:.15s;display:flex;flex-direction:column;gap:12px;min-width:0}
 .tcard:hover{transform:translateY(-2px);border-color:var(--accent)}
 .tcard .rank{position:absolute;top:12px;right:14px;font:700 26px var(--mono);color:var(--muted);opacity:.45}
-.tcard .av{width:52px;height:52px;border-radius:14px}
 .tcard .mc{font:600 22px var(--mono);letter-spacing:-.02em}
 .tcard .mc small{font-size:12px;color:var(--muted);font-weight:500;margin-left:4px}
 .tcard.ph{cursor:default;min-height:150px;align-items:center;justify-content:center;color:var(--muted);font-size:13px}
@@ -582,7 +584,7 @@ function renderGrid() {
     const name = l._ti?.name || l.meta.name || 'Loading…'; const sym = l._ti?.symbol || l.meta.symbol || '';
     const st = l._st; const [lbl, cls] = st ? STATUS[st.status] : ['…', 'b0']; const pct = progress(st);
     const el = document.createElement('div'); el.className = 'card'; el.onclick = () => location.hash = '#/token/' + l.curve;
-    el.innerHTML = `<div class="row" style="color:inherit"><div class="tk"><div class="av"></div><div style="min-width:0"><div class="n">${esc(name)}</div><div class="s">$${esc(sym)}</div></div></div><span class="badge ${cls}">${lbl}</span></div>
+    el.innerHTML = `<div class="tk" style="gap:14px"><div class="av"></div><div style="min-width:0;flex:1"><div class="n">${esc(name)}</div><div class="s">$${esc(sym)}</div><div style="margin-top:8px"><span class="badge ${cls}">${lbl}</span></div></div></div>
       <div><div class="row"><span>${st && st.status === 1 ? `${fmt(st.quoteReserve, 18, 6)} / ${fmt(st.migrationQuoteThreshold, 18, 6)} WETH` : 'Curve progress'}</span><span>${st ? pct.toFixed(1) + '%' : '–'}</span></div><div class="prog" style="margin-top:6px"><i style="width:${pct}%"></i></div></div>
       <div class="row"><span>by ${short(l.creator)}</span><span>${l.time ? ago(l.time) + ' ago' : 'Config #' + l.configId}</span></div>`;
     avatar(el.querySelector('.av'), l.meta, sym, st && st.status >= 2); grid.appendChild(el);
@@ -609,7 +611,7 @@ function renderTop3() {
     const st = l._st; const [lbl, cls] = STATUS[st.status]; const pct = progress(st); const d = l._ti.decimals;
     const el = document.createElement('div'); el.className = 'tcard'; el.onclick = () => location.hash = '#/token/' + l.curve;
     el.innerHTML = `<span class="rank">#${i + 1}</span>
-      <div class="tk"><div class="av"></div><div style="min-width:0"><div class="n" style="font-size:16px">${esc(l._ti.name)}</div><div class="s">$${esc(l._ti.symbol)} · <span class="badge ${cls}">${lbl}</span></div></div></div>
+      <div class="tk" style="gap:14px"><div class="av"></div><div style="min-width:0;flex:1;padding-right:34px"><div class="n">${esc(l._ti.name)}</div><div class="s">$${esc(l._ti.symbol)}</div><div style="margin-top:8px"><span class="badge ${cls}">${lbl}</span></div></div></div>
       <div><div class="row"><span>WETH raised</span><span>Market cap</span></div><div class="row" style="color:var(--text)"><span class="mc">${fmt(raised(l), 18, 6)}<small>WETH</small></span><span class="mono">${m == null ? '–' : fnum(m)}</span></div></div>
       <div><div class="prog"><i style="width:${pct}%"></i></div><div class="row" style="margin-top:6px"><span>Curve progress</span><span>${pct.toFixed(1)}%</span></div></div>`;
     avatar(el.querySelector('.av'), l.meta, l._ti.symbol, st.status >= 2); box.appendChild(el);
@@ -1064,7 +1066,7 @@ async function requestQuote() {
       <div class="row"><span>Price impact</span><span class="${impCls}">${imp == null ? '–' : imp.toFixed(2) + '%'}</span></div>
       <div class="row"><span>Fee</span><span>${fmt(p.fee ?? 0n, p.feeDec)} ${p.feeDec === 18 ? 'WETH' : esc(cur.ti.symbol)}</span></div>
       ${wrapNeed > 0n ? `<div class="row"><span>Auto-wrap first</span><span>${fmt(wrapNeed, 18)} ETH → WETH</span></div>` : ''}
-      ${p.boundary ? `<div class="row wn"><span>Final buy: this order graduates the curve. Only ${fmt(p.used, 18)} WETH is used.</span></div>` : ''}`;
+      ${p.boundary ? `<div class="row wn"><span>Final buy: this order fills the curve (only ${fmt(p.used, 18)} WETH is used). You will then be asked to confirm the graduation transaction.</span></div>` : ''}`;
   } catch (e) { $('tr-quote').innerHTML = `<div class="row"><span class="er">${esc(e.shortMessage || e.message)}</span></div>`; }
   updateTradeButton();
 }
@@ -1085,6 +1087,19 @@ $('tr-go').onclick = async () => {
     const unwrap = side === 'sell' && $('tr-eth').checked;
     const wBefore = unwrap ? await bal(WETH) : 0n;
     const rc = await sendTx(p.tx, el, side === 'buy' ? 'Buy' : 'Sell');
+    if (p.boundary) {
+      // The final buy fills the curve; graduation is a separate permissionless transaction,
+      // so offer it to the same buyer right away instead of leaving the token waiting.
+      log(el, 'Curve filled. Confirm one more transaction to graduate the token…');
+      try {
+        await sleep(4000);
+        const sdk = new S.AmmoraV4LaunchCurveClient(pub, cur.launch.curve, CORE);
+        const mp = await withRetry(async () => sdk.planMigrateAtBlock(await safeBlock()), 5);
+        const mtx = mp.transaction ?? mp;
+        if (!mtx?.to || !mtx?.data) throw new Error('Migration is not available yet');
+        await sendTx(mtx, el, 'Graduate');
+      } catch (e) { log(el, `<span class="wn">Graduation not sent (${esc(e.shortMessage || e.message)}). Anyone can finish it with the Graduate button.</span>`); }
+    }
     if (unwrap) {
       // Sells pay out WETH; unwrap exactly what this sale produced so the user ends up with ETH.
       const wAfter = await withRetry(() => pub.readContract({ address: WETH, abi: erc, functionName: 'balanceOf', args: [account], blockNumber: rc.blockNumber }), 5);
