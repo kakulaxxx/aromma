@@ -1294,7 +1294,15 @@ async function renderPortfolio() {
   try {
     const r = await pub.multicall({ contracts: LAUNCHES.map((l) => ({ address: l.token, abi: erc, functionName: 'balanceOf', args: [account] })), allowFailure: true });
     const held = LAUNCHES.map((l, i) => ({ l, v: r[i].status === 'success' ? r[i].result : 0n })).filter((x) => x.v > 0n);
-    $('p-hold').innerHTML = held.length ? `<table><tr><th>Token</th><th>Status</th><th class="r">Balance</th><th class="r">Value (WETH)</th></tr>${held.map(({ l, v }) => { const d = l._ti?.decimals ?? 9; const val = l._st ? spotPrice(l._st.sqrtPrice, d) * Number(V.formatUnits(v, d)) : null; return `<tr><td><a href="#/token/${l.curve}">${esc(l._ti?.symbol || short(l.token))}</a></td><td>${l._st ? STATUS[l._st.status][0] : ''}</td><td class="r">${fmt(v, d, 2)}</td><td class="r">${val == null ? '–' : fnum(val)}</td></tr>`; }).join('')}</table>` : '<div class="note"><span>You do not hold any launchpad tokens yet.</span> <a href="#/">Explore →</a></div>';
+    // One row per symbol: tokens that share a symbol are merged and their balances and values added up.
+    const hg = new Map();
+    for (const { l, v } of held) {
+      const d = l._ti?.decimals ?? 9; const sym = l._ti?.symbol || short(l.token);
+      const val = l._st ? spotPrice(l._st.sqrtPrice, d) * Number(V.formatUnits(v, d)) : null;
+      const g = hg.get(sym) || { sym, l, n: 0, bal: 0, val: 0, hasVal: false };
+      g.n++; g.bal += Number(V.formatUnits(v, d)); if (val != null) { g.val += val; g.hasVal = true; } hg.set(sym, g);
+    }
+    $('p-hold').innerHTML = held.length ? `<table><tr><th>Token</th><th>Status</th><th class="r">Balance</th><th class="r">Value (WETH)</th></tr>${[...hg.values()].map((g) => `<tr><td><a href="#/token/${g.l.curve}">${esc(g.sym)}</a>${g.n > 1 ? ` <span class="note" style="margin:0">×${g.n}</span>` : ''}</td><td>${g.l._st ? STATUS[g.l._st.status][0] : ''}</td><td class="r">${g.bal.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td><td class="r">${g.hasVal ? fnum(g.val) : '–'}</td></tr>`).join('')}</table>` : '<div class="note"><span>You do not hold any launchpad tokens yet.</span> <a href="#/">Explore →</a></div>';
   } catch (e) { $('p-hold').innerHTML = `<div class="note">Could not load holdings (${esc(e.message)})</div>`; }
   // Creator fees: read each launch's fee vault, then claimable(WETH) and claimable(token).
   const mine = LAUNCHES.filter((l) => l.creator === account);
@@ -1310,7 +1318,7 @@ async function renderPortfolio() {
     const vaults = [...new Map(withVault.map((l) => [l._vault, l._fq])).entries()];
     const wethTotal = vaults.reduce((a, [, v]) => a + v, 0n);
     $('p-mine').innerHTML = `<div class="feebox"><div><div class="note" style="margin:0">Claimable creator fees</div><b>${fmt(wethTotal, 18)} WETH</b></div>${vaults.filter(([, v]) => v > 0n).map(([a]) => `<button class="btn sm" data-claimw="${a}">Claim WETH</button>`).join('') || '<span class="note" style="margin:0">Nothing to claim yet</span>'}</div>
-      <table><tr><th>Token</th><th>Status</th><th class="r">Fees (token)</th><th></th></tr>${mine.map((l) => `<tr><td><a href="#/token/${l.curve}">${esc(l._ti?.symbol || short(l.token))}</a></td><td>${l._st ? STATUS[l._st.status][0] : ''}</td><td class="r">${l._vault ? fmt(l._ft, l._ti?.decimals ?? 9, 2) : '–'}</td><td class="r">${l._vault && l._ft > 0n ? `<button class="btn sm" data-claim="${l.curve}">Claim</button>` : ''}</td></tr>`).join('')}</table>`;
+      <table><tr><th>Token</th><th>Status</th><th class="r">Fees (token)</th><th></th></tr>${[...mine.reduce((m, l) => { const sym = l._ti?.symbol || short(l.token); const g = m.get(sym) || { sym, l, n: 0, fee: 0, any: false }; g.n++; if (l._vault && l._ft > 0n) { g.fee += Number(V.formatUnits(l._ft, l._ti?.decimals ?? 9)); g.any = true; } return m.set(sym, g); }, new Map()).values()].map((g) => `<tr><td><a href="#/token/${g.l.curve}">${esc(g.sym)}</a>${g.n > 1 ? ` <span class="note" style="margin:0">×${g.n}</span>` : ''}</td><td>${g.l._st ? STATUS[g.l._st.status][0] : ''}</td><td class="r">${g.fee.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td><td class="r">${g.any ? `<button class="btn sm" data-claimsym="${esc(g.sym)}">Claim</button>` : ''}</td></tr>`).join('')}</table>`;
   } catch (e) { $('p-mine').innerHTML = `<div class="note">Could not read fee vaults (${esc(e.message)})</div>`; }
 }
 $('p-mine').onclick = async (e) => {
@@ -1325,12 +1333,12 @@ $('p-mine').onclick = async (e) => {
     } catch (err) { logErr(el, err); bw.disabled = false; }
     return;
   }
-  const b = e.target.closest('[data-claim]'); if (!b) return; const el = $('p-log'); el.innerHTML = ''; b.disabled = true;
+  const b = e.target.closest('[data-claimsym]'); if (!b) return; const el = $('p-log'); el.innerHTML = ''; b.disabled = true;
   try {
-    const l = LAUNCHES.find((x) => x.curve === b.dataset.claim);
-    for (const [tok, label] of [[WETH, 'WETH'], [l.token, l._ti?.symbol || 'token']]) {
-      const c = await pub.readContract({ address: l._vault, abi: S.feeVaultAbi, functionName: 'claimable', args: [tok, account] });
-      if (c > 0n) await sendTx({ to: l._vault, data: V.encodeFunctionData({ abi: S.feeVaultAbi, functionName: 'claimFor', args: [tok, account, account] }) }, el, `Claim ${label} fees`);
+    // A merged row claims the token fees of every launch that shares the symbol.
+    for (const l of LAUNCHES.filter((x) => x.creator === account && x._vault && (x._ti?.symbol || short(x.token)) === b.dataset.claimsym)) {
+      const c = await pub.readContract({ address: l._vault, abi: S.feeVaultAbi, functionName: 'claimable', args: [l.token, account] });
+      if (c > 0n) await sendTx({ to: l._vault, data: V.encodeFunctionData({ abi: S.feeVaultAbi, functionName: 'claimFor', args: [l.token, account, account] }) }, el, `Claim ${l._ti?.symbol || 'token'} fees`);
     }
     renderPortfolio();
   } catch (err) { logErr(el, err); b.disabled = false; }
