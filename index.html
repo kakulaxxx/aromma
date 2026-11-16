@@ -311,8 +311,8 @@ s.style.cssText='width:'+d+'px;height:'+d+'px;left:'+(e.clientX-r.left-d/2)+'px;
       <div class="panel">
         <h2 style="margin:0 0 4px">Launch a token</h2>
         <div class="note" style="margin:0">Creates a new ERC-20 and its bonding curve in one transaction through the Ammora V4 LaunchFactory.</div>
-        <label>Quick presets · 8 sea friends</label>
-        <div class="presets" id="presets"></div>
+        <div id="presets-box" class="hidden"><label>Quick presets · 8 sea friends</label>
+        <div class="presets" id="presets"></div></div>
         <label>Token name</label>
         <input id="c-name" maxlength="32" placeholder="e.g. Saigon Coffee" />
         <label>Symbol</label>
@@ -928,6 +928,8 @@ function renderPresets() {
   };
 }
 renderPresets();
+// Presets are a private shortcut for the Aromma owner wallet; other visitors never see them.
+setInterval(() => $('presets-box').classList.toggle('hidden', !(account && account.toLowerCase() === AROMMA_OWNER.toLowerCase())), 800);
 
 function loadLogo(file) {
   if (!file.type.startsWith('image/')) return toast('Please choose an image file');
