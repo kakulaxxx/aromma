@@ -297,6 +297,7 @@ td.r,th.r{text-align:right}
         </div>
         <button class="btn full" id="c-go" style="margin-top:16px">Launch token</button>
         <div class="note">Use your own name and artwork. Do not copy the name or logo of an existing project.</div>
+        <div class="note wn" id="c-note"></div>
         <div class="log" id="c-log"></div>
       </div>
       <div class="stack">
@@ -573,6 +574,8 @@ async function hydrate(list = LAUNCHES.filter((l) => !l._st || !l._ti)) {
         if (st != null) l._st = { status: Number(st), quoteReserve: qr ?? 0n, migrationQuoteThreshold: th ?? 0n, sqrtPrice: sp ?? 0n };
       });
     } catch (e) { console.warn('hydrate', e); }
+    // Launches on raw template #6 whose curve is full can neither trade nor migrate; keep them off the site.
+    LAUNCHES = LAUNCHES.filter((l) => !(l.configId === DEFAULT_CONFIG && l._st?.status === 2));
     soon();
   }
 }
@@ -666,6 +669,21 @@ async function renderConfig() {
 }
 // Platform configs created for Aromma (hard-coded) plus any created from this browser.
 const AROMMA_CONFIGS = [];
+// The platform config is the one created by the Aromma operator wallet; it is discovered from the
+// ConfigRegistry's ConfigCreatedV4 events, so every visitor launches on the same config.
+const AROMMA_OWNER = '0xD57ab6C1f5618e03074C78F11F6eE2c726496bF1';
+let discovered = null;
+async function discoverConfigs() {
+  if (discovered) return discovered;
+  try {
+    const ev = S.ammoraLaunchConfigRegistryV4Abi.find((x) => x.type === 'event' && x.name === 'ConfigCreatedV4');
+    const logs = await explorerLogs(L.configRegistry, V.toEventSelector(ev));
+    const ids = logs.map((l) => V.decodeEventLog({ abi: S.ammoraLaunchConfigRegistryV4Abi, data: l.data, topics: l.topics }).args)
+      .filter((a) => a.owner.toLowerCase() === AROMMA_OWNER.toLowerCase()).map((a) => a.configId).sort((a, b) => Number(a - b));
+    if (ids.length) discovered = ids;
+    return ids;
+  } catch (e) { console.warn('discoverConfigs', e); return []; }
+}
 const myConfigs = () => { try { return JSON.parse(localStorage.getItem('aromma.configs') || '[]').map(BigInt); } catch { return []; } };
 const saveMyConfig = (id) => { try { const a = new Set(myConfigs().map(String)); a.add(String(id)); localStorage.setItem('aromma.configs', JSON.stringify([...a])); } catch {} };
 async function fillConfigs(prefer) {
@@ -674,10 +692,18 @@ async function fillConfigs(prefer) {
   // nothing is left to fund the graduated pool and migrate() reverts with MigrationNotReady.
   // Aromma launches only on configs derived from it (supply = curve sale + pool allocation).
   if (FIXED_CONFIG) {
-    const mine = [...new Set([...AROMMA_CONFIGS, ...myConfigs()].map(String))];
+    const mine = [...new Set([...AROMMA_CONFIGS, ...(await discoverConfigs()), ...myConfigs()].map(String))];
     const has = prefer != null ? String(prefer) : mine[0];
-    $('cc').classList.toggle('hidden', !!has); $('c-go').disabled = !has;
-    if (!has) { $('cc').open = true; $('c-cfg').innerHTML = ''; $('cfg-kv').innerHTML = '<div>Status</div><div class="wn">Launch config not set up yet. Create it below (one transaction).</div>'; return previewConfig(); }
+    $('cc').classList.add('hidden'); $('c-go').disabled = false;
+    if (!has) {
+      $('c-cfg').innerHTML = '';
+      try { const p = await planConfig(account ?? AROMMA_OWNER);
+        $('cfg-kv').innerHTML = `<div>Status</div><div class="wn">Set up on the first launch</div><div>Total supply</div><div>${Math.round(p.totalTokens).toLocaleString('en-US')}</div><div>Sold on the curve</div><div>${(p.saleTokens / p.totalTokens * 100).toFixed(1)}%</div><div>Graduates at</div><div>${fmt(p.thr, 18)} WETH raised</div><div>Reserved for the pool</div><div>${Math.round(p.poolTokens).toLocaleString('en-US')}</div><div>Trading fee</div><div>${(p.config.cliffFeeBps / 100).toFixed(2)}%</div>`;
+      } catch (e) { $('cfg-kv').innerHTML = `<div>Status</div><div class="er">${esc(e.message)}</div>`; }
+      $('c-note').textContent = 'First launch only: you will confirm two transactions. The first sets up the Aromma launch config, the second creates your token.';
+      return;
+    }
+    $('c-note').textContent = '';
     $('c-cfg').innerHTML = `<option value="${has}">Config #${has}</option>`; $('c-cfg').value = has; return renderConfig();
   }
   const own = [...new Set([...AROMMA_CONFIGS, ...myConfigs()].map(String))].map(BigInt);
@@ -779,12 +805,27 @@ $('c-go').onclick = async () => {
     if (image && !LOGO.data && !safeUrl(image)) throw new Error('Image URL must start with https://');
     if (website && !safeUrl(website)) throw new Error('Website must start with https://');
     btn.disabled = true;
-    if (!$('c-cfg').value) throw new Error('Create the launch config first');
+    let minBlock = 0n;
+    if (!$('c-cfg').value) {
+      // No platform config yet: create it first (same derivation as the SDK examples), then launch on it.
+      log(el, 'Step 1 of 2: setting up the launch config…');
+      await S.verifyAmmoraV4CoreAtBlock(pub, CORE, await safeBlock());
+      const p = await planConfig(account);
+      await pub.estimateGas({ account, to: p.tx.to, data: p.tx.data }).catch((e) => { throw new Error('Config simulation failed: ' + (e.shortMessage || e.message)); });
+      const rc = await sendTx(p.tx, el, 'Create config');
+      const cc = S.parseAmmoraV4ConfigCreatedReceipt(rc, L.configRegistry);
+      saveMyConfig(cc.configId); discovered = null; minBlock = rc.blockNumber;
+      log(el, `<span class="ok">Config #${cc.configId} ready.</span> Step 2 of 2: creating your token…`);
+      $('c-cfg').innerHTML = `<option value="${cc.configId}">Config #${cc.configId}</option>`; $('c-cfg').value = String(cc.configId); $('c-note').textContent = '';
+    }
     const configId = BigInt($('c-cfg').value);
-    const block = await safeBlock();
     log(el, 'Verifying Ammora V4 core contracts…');
-    await S.verifyAmmoraV4CoreAtBlock(pub, CORE, block);
-    const entry = await S.getAmmoraV4ConfigAtBlock(pub, L.configRegistry, configId, block);
+    // Read at a block that already contains the config (public RPC replicas can lag).
+    const { block, entry } = await withRetry(async () => {
+      const sb = await safeBlock(); const block = sb > minBlock ? sb : minBlock;
+      await S.verifyAmmoraV4CoreAtBlock(pub, CORE, block);
+      return { block, entry: await S.getAmmoraV4ConfigAtBlock(pub, L.configRegistry, configId, block) };
+    }, 6);
     if (!entry.enabled) throw new Error(`Config #${configId} is disabled`);
     const uri = makeMeta({ name, symbol, description, image: LOGO.data || image, website });
     if (utf8len(uri) > META_LIMIT) throw new Error(`Metadata is ${utf8len(uri)} bytes; the limit is ${META_LIMIT}. Shorten the description or remove the logo.`);
@@ -1245,7 +1286,7 @@ const KO = {
   'A fee vault is shared across launches, so the same balance can appear on several of your tokens. Claim once.': '수수료 볼트는 여러 런치가 함께 사용하므로 같은 잔액이 여러 토큰에 표시될 수 있습니다. 한 번만 청구하세요.',
   'Wallet': '지갑', 'Not connected': '연결되지 않음', 'Wrap ETH → WETH': 'ETH → WETH 래핑', 'Wrap': '래핑', 'Unwrap WETH → ETH': 'WETH → ETH 언래핑', 'Unwrap': '언래핑',
   'Need gas? Use the': '가스가 필요하면', 'GIWA faucet': 'GIWA 파우셋', 'or the': '또는', 'GIWA bridge': 'GIWA 브리지',
-  'Network busy': '네트워크 혼잡', 'Launch config not set up yet. Create it below (one transaction).': '런치 설정이 아직 없습니다. 아래에서 생성하세요 (트랜잭션 1회).', 'This token cannot graduate: its launch config sells the entire supply on the curve, so no tokens are left to fund the pool (the contract answers MigrationNotReady). New Aromma launches use a config without this problem.': '이 토큰은 졸업할 수 없습니다. 런치 설정이 전체 공급량을 커브에서 판매해 풀에 넣을 토큰이 남지 않기 때문입니다(컨트랙트 응답: MigrationNotReady). 새 Aromma 런치는 이 문제가 없는 설정을 사용합니다.', 'Launch settings': '런치 설정', "Every Aromma token uses one launch config derived from Ammora's reviewed template with the SDK's curve and pool math. Values are read live from the Ammora ConfigRegistry.": '모든 Aromma 토큰은 Ammora의 검토된 템플릿에서 SDK의 커브·풀 계산으로 파생한 하나의 런치 설정을 사용합니다. 값은 Ammora ConfigRegistry에서 실시간으로 읽어옵니다.', 'Receive ETH (auto-unwraps WETH)': 'ETH로 받기 (WETH 자동 언래핑)', 'Create your own launch config': '나만의 런치 설정 만들기', 'Graduates at (WETH)': '졸업 기준 (WETH)', 'Total supply (tokens)': '총 공급량 (토큰)', 'Start market cap (WETH)': '시작 시가총액 (WETH)', 'Create config': '설정 생성', 'Sold on the curve': '커브 판매량', 'Added to the pool at graduation': '졸업 시 풀에 추가', 'Start price / market cap': '시작 가격 / 시가총액', 'Price / market cap at graduation': '졸업 시 가격 / 시가총액', 'Owner and partner recipient': '소유자 및 파트너 수령인', 'your connected wallet': '연결된 지갑', 'Preview': '미리보기',
+  'Network busy': '네트워크 혼잡', 'Set up on the first launch': '첫 런치 때 설정됩니다', 'Reserved for the pool': '풀 예약분', 'First launch only: you will confirm two transactions. The first sets up the Aromma launch config, the second creates your token.': '첫 런치에 한해 트랜잭션을 두 번 승인합니다. 첫 번째는 Aromma 런치 설정을 만들고, 두 번째는 토큰을 생성합니다.', 'Launch config not set up yet. Create it below (one transaction).': '런치 설정이 아직 없습니다. 아래에서 생성하세요 (트랜잭션 1회).', 'This token cannot graduate: its launch config sells the entire supply on the curve, so no tokens are left to fund the pool (the contract answers MigrationNotReady). New Aromma launches use a config without this problem.': '이 토큰은 졸업할 수 없습니다. 런치 설정이 전체 공급량을 커브에서 판매해 풀에 넣을 토큰이 남지 않기 때문입니다(컨트랙트 응답: MigrationNotReady). 새 Aromma 런치는 이 문제가 없는 설정을 사용합니다.', 'Launch settings': '런치 설정', "Every Aromma token uses one launch config derived from Ammora's reviewed template with the SDK's curve and pool math. Values are read live from the Ammora ConfigRegistry.": '모든 Aromma 토큰은 Ammora의 검토된 템플릿에서 SDK의 커브·풀 계산으로 파생한 하나의 런치 설정을 사용합니다. 값은 Ammora ConfigRegistry에서 실시간으로 읽어옵니다.', 'Receive ETH (auto-unwraps WETH)': 'ETH로 받기 (WETH 자동 언래핑)', 'Create your own launch config': '나만의 런치 설정 만들기', 'Graduates at (WETH)': '졸업 기준 (WETH)', 'Total supply (tokens)': '총 공급량 (토큰)', 'Start market cap (WETH)': '시작 시가총액 (WETH)', 'Create config': '설정 생성', 'Sold on the curve': '커브 판매량', 'Added to the pool at graduation': '졸업 시 풀에 추가', 'Start price / market cap': '시작 가격 / 시가총액', 'Price / market cap at graduation': '졸업 시 가격 / 시가총액', 'Owner and partner recipient': '소유자 및 파트너 수령인', 'your connected wallet': '연결된 지갑', 'Preview': '미리보기',
   "Set your own graduation target, supply and starting market cap. Fee rates, LP locks and vesting are inherited from Ammora's reviewed Config #6. Your wallet becomes the config owner and receives the partner fee share and partner LP. One transaction; the config can then be reused for any number of tokens.": '졸업 기준, 공급량, 시작 시가총액을 직접 정하세요. 수수료율, LP 잠금, 베스팅은 Ammora가 검토한 설정 #6을 따릅니다. 내 지갑이 설정 소유자가 되어 파트너 수수료와 파트너 LP를 받습니다. 트랜잭션 한 번으로 만들고, 이후 여러 토큰에 재사용할 수 있습니다.', 'The public GIWA RPC is slow or still syncing this token.': '공개 GIWA RPC가 느리거나 아직 이 토큰을 동기화하는 중입니다.', 'Retry': '다시 시도', 'Top tokens': '상위 토큰', 'Top 3 by WETH raised on the bonding curve': '본딩 커브 WETH 모금액 기준 상위 3개', 'Market cap': '시가총액', 'Price': '가격', 'Launch a token to take this spot': '토큰을 런치해 이 자리를 차지하세요', 'Not an Ammora V4 curve': 'Ammora V4 커브가 아닙니다',
   'Aromma is an independent community launchpad on GIWA Sepolia testnet (chain 91342), not operated by Ammora Labs. Do not use real funds. Contracts, quotes and transaction plans come from': 'Aromma는 GIWA 세폴리아 테스트넷(체인 91342)의 독립 커뮤니티 런치패드이며 Ammora Labs가 운영하지 않습니다. 실제 자금을 사용하지 마세요. 컨트랙트, 견적, 트랜잭션 계획은 다음에서 제공됩니다:',
   '. \n  Launch history, trades and holders are read from the GIWA explorer.': '. 런치 기록, 거래, 보유자 정보는 GIWA 익스플로러에서 읽어옵니다.',
